@@ -3,6 +3,7 @@ package hk.ust.comp3021;
 import java.util.List;
 import java.util.stream.Stream;
 
+import hk.ust.comp3021.parallel.QueryWorker;
 import hk.ust.comp3021.query.*;
 import hk.ust.comp3021.utils.*;
 
@@ -17,14 +18,14 @@ public class RapidASTManagerEngine {
 
 
     public void processXMLParsing(String xmlDirPath, List<String> xmlIDs) {
-        // TODO
+        // TODO: use ParserWorkers.
     }
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
-        List<Worker> workers = new ArrayList<>();
+        List<QueryWorker> workers = new ArrayList<>();
 
         for(Object[] command : commands) {
-            Worker worker = new Worker((String)command[0], (String)command[1], (String)command[2], (Object[])command[3], executionMode);
+            QueryWorker worker = new QueryWorker((String)command[0], (String)command[1], (String)command[2], (Object[])command[3], executionMode);
             workers.add(worker);
         }
 
@@ -40,21 +41,21 @@ public class RapidASTManagerEngine {
         return allResults;
     }
 
-    private void executeCommandsSerial(List<Worker> workers) {
-        for(Worker worker : workers) {
+    private void executeCommandsSerial(List<QueryWorker> workers) {
+        for(QueryWorker worker : workers) {
             worker.run();
         }
     }
 
-    private void executeCommandsParallelNoDep(List<Worker> workers) {
+    private void executeCommandsParallelNoDep(List<QueryWorker> workers) {
         // TODO
     }
 
-    private void executeCommandsParallelFileDep(List<Worker> workers) {
+    private void executeCommandsParallelFileDep(List<QueryWorker> workers) {
         // TODO
     }
 
-    private void executeCommandsParallelQueryDep(List<Worker> workers) {
+    private void executeCommandsParallelQueryDep(List<QueryWorker> workers) {
         // TODO
     }
 

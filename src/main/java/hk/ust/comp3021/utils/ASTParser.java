@@ -5,14 +5,11 @@ import java.nio.file.Paths;
 import java.util.*;
 
 
-public class ASTParser implements Runnable{
+public class ASTParser {
     private final String xmlFilePath;
     private boolean isErr;
     private XMLNode rootXMLNode;
     private ASTModule rootASTModule;
-
-    private HashMap<String, ASTModule>id2ASTModules;
-    private String xmlID;
 
     public ASTParser(String xmlFilePath) {
         this.xmlFilePath = xmlFilePath;
@@ -20,29 +17,6 @@ public class ASTParser implements Runnable{
         this.isErr = false;
         this.rootXMLNode = null;
         this.rootASTModule = null;
-    }
-
-    public ASTParser(String xmlDirPath, String xmlID, HashMap<String, ASTModule>id2ASTModules) {
-        this.xmlFilePath = Paths.get(xmlDirPath).resolve("python_" + xmlID + ".xml").toString();
-        this.xmlID = xmlID;
-        this.id2ASTModules = id2ASTModules;
-
-        this.isErr = false;
-        this.rootXMLNode = null;
-        this.rootASTModule = null;
-    }
-
-    // TODO
-    public void run() {
-        parse();
-        if(!isErr()) {
-            synchronized(this.id2ASTModules) {
-                this.id2ASTModules.put(xmlID, getASTModule());
-            }
-            System.out.println("Parse " + this.xmlFilePath + " Succeed! The XML file is loaded!");
-        } else {
-            System.out.println("Parse " + this.xmlFilePath + " Failed! ");
-        }
     }
 
     public boolean isErr() {

@@ -1,11 +1,11 @@
-package hk.ust.comp3021;
-public class Worker implements Runnable {
+package hk.ust.comp3021.parallel;
+public class QueryWorker implements Runnable {
     public String queryID;
     public String astID;
     public String queryName;
     public Object[] args;
     public int mode;
-    public Worker(String queryID, String astID, String queryName, Object[] args, int mode) {
+    public QueryWorker(String queryID, String astID, String queryName, Object[] args, int mode) {
         this.queryID = queryID;
         this.astID = astID;
         this.queryName = queryName;
