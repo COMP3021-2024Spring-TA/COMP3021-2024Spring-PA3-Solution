@@ -27,7 +27,7 @@ public class QueryOnMethod {
 
 
     /**
-     * TODO `findEqualCompareInFunc` find all comparison expression with operator \"==\" in current module 
+     * TODO `findEqualCompareInFunc` find all comparison expression with operator \"==\" in current module
      * {@link QueryOnMethod#module}
      *
      * @param funcName the name of the function to be queried
@@ -52,7 +52,7 @@ public class QueryOnMethod {
     };
 
     /**
-     * TODO `findFuncWithBoolParam` find all functions that use boolean parameter as if condition in current module 
+     * TODO `findFuncWithBoolParam` find all functions that use boolean parameter as if condition in current module
      * {@link QueryOnMethod#module}
      *
      * @param null
@@ -99,7 +99,7 @@ public class QueryOnMethod {
 
 
     /**
-     * TODO Given func name `funcName`, `findUnusedParamInFunc` find all unused parameter in current module 
+     * TODO Given func name `funcName`, `findUnusedParamInFunc` find all unused parameter in current module
      * {@link QueryOnMethod#module}
      *
      * @param funcName to be queried function name
@@ -175,7 +175,7 @@ public class QueryOnMethod {
             new ArrayList<>(func.filter(expr -> expr instanceof CallExpr));
 
     /**
-     * TODO Given func name `funcName`, `findDirectCalledOtherB` find all functions being direct called by functions 
+     * TODO Given func name `funcName`, `findDirectCalledOtherB` find all functions being direct called by functions
      * other than B in current module {@link QueryOnMethod#module}
      *
      * @param funcName the name of function B
@@ -207,7 +207,7 @@ public class QueryOnMethod {
                 }
             }
         }));
-        
+
         if (findFuncInModule.apply(funcName).isPresent()) {
             results.addAll(callee2AllCallers
                     .entrySet()
@@ -227,7 +227,7 @@ public class QueryOnMethod {
     };
 
     /**
-     * TODO Given func name `funcNameA` and `funcNameB`, `answerIfACalledB` checks if A calls B directly 
+     * TODO Given func name `funcNameA` and `funcNameB`, `answerIfACalledB` checks if A calls B directly
      * or transitively in current module {@link QueryOnMethod#module}
      *
      * @param funcNameA the name of function A
@@ -243,7 +243,7 @@ public class QueryOnMethod {
             List<String> tobeProcessed = new ArrayList<>();
             tobeProcessed.add(funcNameA);
             boolean if_fisrt = true;
-            
+
             while (!tobeProcessed.isEmpty()) {
                 String curFuncName = tobeProcessed.get(0);
                 tobeProcessed.remove(0);

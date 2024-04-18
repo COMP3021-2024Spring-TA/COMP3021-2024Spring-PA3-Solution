@@ -2,11 +2,7 @@ package hk.ust.comp3021.parallel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,19 +15,17 @@ import hk.ust.comp3021.utils.ASTModule;
 public class ParallelTest {
 
     public void checkResults(List<Object> expecteds, List<Object> actuals, List<Object[]> commands) {
-        for(int i=0; i<expecteds.size(); i++) {
+        for (int i = 0; i < expecteds.size(); i++) {
             Object expected = expecteds.get(i);
             Object actual = actuals.get(i);
-            String queryName = (String) ((Object[])commands.get(i))[2];
+            String queryName = (String) ((Object[]) commands.get(i))[2];
 
-            if(queryName == "findClassesWithMain") {
-                assertEquals((Set<String>)expected, new HashSet<String>((List<String>)actual));
+            if (Objects.equals(queryName, "findClassesWithMain")) {
+                assertEquals(expected, new HashSet<String>((List<String>) actual));
             } else {
                 assertEquals(expected, actual);
             }
-
         }
-
     }
 
     @Tag(TestKind.PUBLIC)
@@ -50,11 +44,11 @@ public class ParallelTest {
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
-        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
-        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
-        commands.add(new Object[] {"1", "20", "findClassesWithMain", new Object[] {}});
-        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
-        
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "20", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("C", "D", "F", "G", "H"));
         expectedResults.add(Set.of("B", "D"));
@@ -63,7 +57,7 @@ public class ParallelTest {
         engine.processCommands(commands, 0);
 
         List<Object> allResults = engine.getAllResults();
-        
+
         checkResults(expectedResults, allResults, commands);
     }
 
@@ -76,11 +70,11 @@ public class ParallelTest {
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
-        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
-        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
-        commands.add(new Object[] {"1", "20", "findClassesWithMain", new Object[] {}});
-        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
-        
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "20", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"1", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("C", "D", "F", "G", "H"));
         expectedResults.add(Set.of("B", "D"));
@@ -89,7 +83,7 @@ public class ParallelTest {
         engine.processCommands(commands, 1);
 
         List<Object> allResults = engine.getAllResults();
-        
+
         checkResults(expectedResults, allResults, commands);
 
     }

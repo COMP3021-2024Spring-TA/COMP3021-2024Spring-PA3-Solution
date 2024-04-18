@@ -1,7 +1,6 @@
 package hk.ust.comp3021.parallel;
-import hk.ust.comp3021.query.QueryOnMethod;
-import hk.ust.comp3021.query.QueryOnClass;
-import hk.ust.comp3021.query.QueryOnNode;
+
+import hk.ust.comp3021.query.*;
 import hk.ust.comp3021.utils.ASTModule;
 import java.util.HashMap;
 
@@ -29,18 +28,18 @@ public class QueryWorker implements Runnable {
     }
 
     public void run() {
-        if(mode == 0) {
+        if (mode == 0) {
             runSerial();
-        } else if(mode == 1) {
+        } else if (mode == 1) {
             runParallel();
-        } else if(mode == 2) {
+        } else if (mode == 2) {
             runParallelWithOrder();
-        } 
+        }
     }
 
     private void runSerial() {
         // TODO
-        switch(queryName) {
+        switch (queryName) {
             case "findFuncWithArgGtN": {
                 QueryOnNode query = new QueryOnNode(id2ASTModules);
                 query.findFuncWithArgGtN.accept((Integer) args[0]);
@@ -118,6 +117,7 @@ public class QueryWorker implements Runnable {
         }
 
     }
+
     private void runParallel() {
         // TODO:
         runSerial();

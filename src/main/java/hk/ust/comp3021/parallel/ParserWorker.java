@@ -7,9 +7,9 @@ import hk.ust.comp3021.utils.ASTModule;
 import hk.ust.comp3021.utils.ASTParser;
 
 public class ParserWorker implements Runnable {
-    private String xmlID; 
-    private String xmlDirPath; 
-    
+    private String xmlID;
+    private String xmlDirPath;
+
     private HashMap<String, ASTModule> id2ASTModules;
 
     public ParserWorker(String xmlID, String xmlDirPath, HashMap<String, ASTModule> id2ASTModules) {
@@ -18,12 +18,13 @@ public class ParserWorker implements Runnable {
         this.id2ASTModules = id2ASTModules;
     }
 
+    @Override
     public void run() {
         // TODO:
         ASTParser parser = new ASTParser(Paths.get(xmlDirPath).resolve("python_" + xmlID + ".xml").toString());
         parser.parse();
-        if(!parser.isErr()) {
-            synchronized(id2ASTModules) {
+        if (!parser.isErr()) {
+            synchronized (id2ASTModules) {
                 id2ASTModules.put(xmlID, parser.getASTModule());
             }
             System.out.println("Parse " + xmlID + " Succeed! The XML file is loaded!");

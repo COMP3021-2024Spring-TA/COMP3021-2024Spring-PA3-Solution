@@ -18,7 +18,7 @@ public class QueryOnNode {
     }
 
     /**
-     * TODO `findFuncWithArgGtN` find all functions whose # arguments > given `paramN` in all modules 
+     * TODO `findFuncWithArgGtN` find all functions whose # arguments > given `paramN` in all modules
      * {@link QueryOnNode#id2ASTModules}
      *
      * @param paramN the number of arguments user expects
@@ -105,12 +105,12 @@ public class QueryOnNode {
     };
 
     /**
-     * TODO `processNodeFreq` sort all functions in all modules {@link QueryOnNode#id2ASTModules} based 
+     * TODO `processNodeFreq` sort all functions in all modules {@link QueryOnNode#id2ASTModules} based
      * on the number of nodes in FunctionDefStmt subtree
      *
      * @param null
-     * @return a list of entries sorted in descending order where the key is function name 
-     *         with format ModuleID_FuncName_LineNo, and value is the # nodes
+     * @return a list of entries sorted in descending order where the key is function name
+     * with format ModuleID_FuncName_LineNo, and value is the # nodes
      * Hints1: use {@link ASTElement#forEach(Consumer)} method to implement the function
      * Hint2: note that `countChildren` method is removed, please do not use this method
      */
@@ -132,14 +132,12 @@ public class QueryOnNode {
                             entry.getValue(),
                             (value1, value2) -> value1));
         });
-                
+
         return funcName2NodeNum
                 .entrySet()
                 .stream()
                 .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                 .toList();
     };
-
-
-
+    
 }

@@ -1,6 +1,8 @@
 package hk.ust.comp3021;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
 import hk.ust.comp3021.parallel.ParserWorker;
@@ -27,45 +29,54 @@ public class RapidASTManagerEngine {
 
     public void processXMLParsing(String xmlDirPath, List<String> xmlIDs) {
         // TODO: use ParserWorkers.
-        List<Thread> threads = new ArrayList<>();
-        for(String xmlID: xmlIDs) {
+//        List<Thread> threads = new ArrayList<>();
+//        for (String xmlID : xmlIDs) {
+//            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
+//            threads.add(new Thread(worker));
+//        }
+//
+//        for (Thread thread : threads) {
+//            thread.start();
+//        }
+//
+//        try {
+//            for (Thread thread : threads) {
+//                thread.join();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(10);
+        for (String xmlID: xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
-            threads.add(new Thread(worker));
+            executor.execute(worker);
         }
-
-        for(Thread thread : threads) {
-            thread.start();
-        }
-
-        try {
-            for(Thread thread : threads) {
-                thread.join();
-            }
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        executor.shutdown();
+        
     }
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
         List<QueryWorker> workers = new ArrayList<>();
 
-        for(Object[] command : commands) {
-            QueryWorker worker = new QueryWorker(id2ASTModules, (String)command[0], (String)command[1], (String) command[2], (Object[])command[3], executionMode);
+        for (Object[] command : commands) {
+            QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0], 
+                    (String) command[1], (String) command[2], (Object[]) command[3], executionMode);
             workers.add(worker);
         }
 
-        if(executionMode == 0) {
+        if (executionMode == 0) {
             executeCommandsSerial(workers);
-        } else if(executionMode == 1) {
+        } else if (executionMode == 1) {
             executeCommandsParallel(workers);
-        } else if(executionMode == 2)  {
+        } else if (executionMode == 2) {
             executeCommandsParallelWithOrder(workers);
         }
         return allResults;
     }
 
     private void executeCommandsSerial(List<QueryWorker> workers) {
-        for(QueryWorker worker : workers) {
+        for (QueryWorker worker : workers) {
             worker.run();
             Object result = worker.getResult();
             allResults.add(result);
@@ -76,28 +87,24 @@ public class RapidASTManagerEngine {
         // TODO
         List<Thread> threads = new ArrayList<>();
 
-        for(QueryWorker worker : workers) {
+        for (QueryWorker worker : workers) {
             threads.add(new Thread(worker));
         }
 
-        for(Thread thread : threads) {
+        for (Thread thread : threads) {
             thread.start();
         }
 
         try {
-            for(Thread thread : threads) {
+            for (Thread thread : threads) {
                 thread.join();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        for(QueryWorker worker : workers) {
+        for (QueryWorker worker : workers) {
             allResults.add(worker.getResult());
         }
-
-
-
-
     }
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {

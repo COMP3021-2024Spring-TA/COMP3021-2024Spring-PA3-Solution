@@ -12,9 +12,9 @@ Specifically, the goal of PA3 is to get you familiar with work dividing to speed
 
 - Task 1: Parallel importing of XML files
 - Task 2: Efficient Query Processing
-- Bonus: 
+- Task 3: Mixture XML Importing and Query
 
-Similar to PA1 and PA2, each input is an XML file that represents a Python AST. The XML files used to test logics of PA1 are resided in `resources/pythonxmlPA1` while those for ten code patterns and bonus tasks are located in `resources/pythonxml`. Before task specification, we first explain the grading policy as follows for your reference so that you will get it.
+Similar to PA1 and PA2, each input is an XML file that represents a Python AST. The XML files used to test logics of PA1 are resided in `resources/pythonxmlPA1` while those for ten code patterns are located in `resources/pythonxml`. Before task specification, we first explain the grading policy as follows for your reference so that you will get it.
 
 | Item                                               | Ratio | Notes                                                                    |
 |----------------------------------------------------| ----- |--------------------------------------------------------------------------|
@@ -24,16 +24,44 @@ Similar to PA1 and PA2, each input is an XML file that represents a Python AST. 
 | Public test cases (Task 1 + Task 2 + Bonus Task)   | 30%   | (# of passing tests / # of provided tests) * 30%                         |
 | Hidden test cases (Task 1 + Task 2 + Bonus Task)   | 50%   | (# of passing tests / # of provided tests) * 50%                         |
 
+Note that we would also check the performance of your implementation. Without finishing the task within given time, you will not get full marks even with correct results.
+
 ### Task Description
 
-The specifications of each task are shown below.
+The specifications of each task are shown below. We have released the implementations of core functionalities in the form of `jar` package, i.e., XML loading and querying mentioned in PA1 and PA2. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat the given implementations as blackboxes. 
 
-#### Task 1: Parallel Import of XML Files (30%)
+In PA3, we establish a new parallel framework `RapidASTManagerEngine` under directory `parallel` to replace the original `ASTManagerEngine`.
+The class has two objects, `id2ASTModules` organizing the mapping between the ID to corresponding parsed AST and `allResults` stores the results of a bunch of query you need to process in parallel.
+
+#### Task 1: Build Parallel Framework and Support Parallel Import of XML Files 
+
+In task 1, to support parallel import of XML files, we use `ParserWorkers` to organize essential information for XML loading, including the ID of AST to be loaded `xmlID`, the absolute path of XML file directory `xmlDirPath`, and the mapping to store the loaded AST `id2ASTModules`.
+
+You can notice `ParserWorker` is a subclass of interface `Runnable`. Please implement the method `run` of `Runnable` interface to load AST of given ID and store the results to `id2ASTModules`. You can invoke `ASTParser#parser` but please caution on the concurrent writing to the global mapping. 
+
+```Java
+public class ParserWorker implements Runnable {
+    @Override
+    public void run() {
+        // Loading XML file in Parallel
+    }
+}
+```
+
+After finishing the `ParserWorder`, please implement `processXMLParsing` method of `RapidASTManagerEngine` to launch threads and manage them with a threading pool using `ExecutorService`.
 
 
 #### Task 2: Support Customized Parallelization on Query Processing
 
+ So far you have implemented three kinds of queries, i.e., `queryOnNode`, `queryOnMethod` and `queryOnClass`.
+In the previous PAs, each time you need to process on query command at a time.
+But in task 2, you are requested to process numbers of queries in parallel.
 
+We use `QueryWorker` under `parallel` to universally manage the different commands and their outputs. The meaning of each field is outlined below.
+- `id2ASTModules`: global mapping managing all loaded AST so far
+- 
+
+#### Task 3: Mixture XML Import and Query
 
 #### Bonus Task: Implement an API misuse bug detector (10%)
 
@@ -41,13 +69,11 @@ The specifications of each task are shown below.
 
 We have marked the methods you need to implement using `TODO` in the skeleton. Specifically, please
 
-- Learn three collectors, design, and implement them in `ASTElement`.
-- Fully implement the lambda expressions in the class `QueryOnNode`.
-- Fully implement the lambda expressions in the class `QueryOnMethod`.
-- Fully implement the lambda expressions in the class `QueryOnClass`.
-- Fully implement the lambda expressions in the class `BugDetector`.
+- Fully implement the TODOs in the class `RapidASTManagerEngine`.
+- Fully implement the TODOs in the class `ParserWorker`.
+- Fully implement the TODOs in the class `QueryWorkder`.
 
-**Note**: You can add more methods or even classes into the skeleton in your solution, but **DO NOT** modify existing code.
+**Note**: You can add more methods into the above three classes in your solution, but **DO NOT** modify other classes.
 
 You need to follow the comments on the methods to be implemented in the provided skeleton. We have provided detailed descriptions and even several hints for these methods. To convenience the testing and debugging, you can just run the `main` method of `ASTManager` to interact with the system.
 
@@ -59,13 +85,13 @@ Public test cases are released in `src/test/java/hk.ust.comp3021/query` and `src
 
 We use JUnit test to validate the correctness of individual methods that you need to implement. The mapping between public test cases and methods to be tested is shown below.
 
-| Test Case      | Target Method                                  |
-| ----------- |------------------------------------------------|
-| `ASTElementTest`        | Three collectors for AST in `ASTElement`       |
-| `QueryOnNodeTest`        | Methods in `QueryOnNode`                       |
-| `QueryOnMethodTest`   | Methods in `QueryOnMethod`                     |
-| `QueryOnClassTest` | Methods in `QueryOnClass`                      |
-| `BugDetectorTest` | Methods in `BugDetector` (For Bonus Task Only) |
+| Test Case           | Target Method                                   |
+|---------------------|-------------------------------------------------|
+| `ASTElementTest`    | Three collectors for AST in `ASTElement`        |
+| `QueryOnNodeTest`   | Methods in `QueryOnNode`                        |
+| `QueryOnMethodTest` | Methods in `QueryOnMethod`                      |
+| `QueryOnClassTest`  | Methods in `QueryOnClass`                       |
+| `BugDetectorTest`   | Methods in `BugDetector` (For Bonus Task Only)  |
 
 You can fix the problem of your implementation based on the failed test cases.
 
