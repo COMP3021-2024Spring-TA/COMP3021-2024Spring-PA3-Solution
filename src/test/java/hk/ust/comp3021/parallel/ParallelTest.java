@@ -25,7 +25,7 @@ public class ParallelTest {
             Object actual = actuals.get(i);
             String queryName = (String) ((Object[]) commands.get(i))[2];
 
-            if (Objects.equals(queryName, "findClassesWithMain")) {
+            if (queryName.equals("findClassesWithMain")) {
                 assertEquals(expected, new HashSet<String>((List<String>) actual));
             } else {
                 assertEquals(expected, actual);

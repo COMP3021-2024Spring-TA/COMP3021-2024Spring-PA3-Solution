@@ -48,19 +48,19 @@ public class RapidASTManagerEngine {
 //        }
 
         ExecutorService executor = Executors.newFixedThreadPool(10);
-        for (String xmlID: xmlIDs) {
+        for (String xmlID : xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
             executor.execute(worker);
         }
         executor.shutdown();
-        
+
     }
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
         List<QueryWorker> workers = new ArrayList<>();
 
         for (Object[] command : commands) {
-            QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0], 
+            QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0],
                     (String) command[1], (String) command[2], (Object[]) command[3], executionMode);
             workers.add(worker);
         }
@@ -111,5 +111,11 @@ public class RapidASTManagerEngine {
         // TODO
 
     }
+
+    public List<Object> processCommandsInterLeaved(List<Object[]> commands) {
+        // TODO
+        return allResults;
+    }
+
 
 }

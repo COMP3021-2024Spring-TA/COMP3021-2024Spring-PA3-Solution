@@ -16,15 +16,15 @@ Specifically, the goal of PA3 is to get you familiar with work dividing to speed
 
 Similar to PA1 and PA2, each input is an XML file that represents a Python AST. The XML files used to test logics of PA1 are resided in `resources/pythonxmlPA1` while those for ten code patterns are located in `resources/pythonxml`. Before task specification, we first explain the grading policy as follows for your reference so that you will get it.
 
-| Item                                               | Ratio | Notes                                                                    |
-|----------------------------------------------------| ----- |--------------------------------------------------------------------------|
-| Keeping your GitHub repository private             | 5%    | You must keep your repository **priavte** at all times.                  |
-| Having at least three commits on different days    | 5%    | You should commit three times during different days in your repository   |
-| Code style                                         | 10%   | You get 10% by default, and every 5 warnings from CheckStyle deducts 1%. |
-| Public test cases (Task 1 + Task 2 + Bonus Task)   | 30%   | (# of passing tests / # of provided tests) * 30%                         |
-| Hidden test cases (Task 1 + Task 2 + Bonus Task)   | 50%   | (# of passing tests / # of provided tests) * 50%                         |
+| Item                                            | Ratio | Notes                                                                    |
+|-------------------------------------------------| ----- |--------------------------------------------------------------------------|
+| Keeping your GitHub repository private          | 5%    | You must keep your repository **priavte** at all times.                  |
+| Having at least three commits on different days | 5%    | You should commit three times during different days in your repository   |
+| Code style                                      | 10%   | You get 10% by default, and every 5 warnings from CheckStyle deducts 1%. |
+| Public test cases (Task 1 + Task 2 + Task 3)    | 30%   | (# of passing tests / # of provided tests) * 30%                         |
+| Hidden test cases (Task 1 + Task 2 + Task 3)    | 50%   | (# of passing tests / # of provided tests) * 50%                         |
 
-Note that we would also check the performance of your implementation. Without finishing the task within given time, you will not get full marks even with correct results.
+Note that we would check both the correctness and the performance of your implementation. Without finishing the task within given time, you will not get full marks even with correct results.
 
 ### Task Description
 
@@ -59,11 +59,65 @@ But in task 2, you are requested to process numbers of queries in parallel.
 
 We use `QueryWorker` under `parallel` to universally manage the different commands and their outputs. The meaning of each field is outlined below.
 - `id2ASTModules`: global mapping managing all loaded AST so far
-- 
+- `queryID`: the index of current query inside total queries
+- `astID`: the ID of AST to be queried
+- `queryName`: the name of query, including 14 queries you writen in lambda, from `findFuncWithArgGtN` to `findClassesWithMain`.
+- `args`: the inputs of query, its size depends on the specific query to be conducted, for instance, `answerIfACalledB` query has two inputs.
+- `result`: universal structure to store the query results, which depends on the specific query to be conducted, for instance, `answerIfACalledB` returns boolean data.
+- `mode`: three query mode, which will be elaborated on later.
 
-#### Task 3: Mixture XML Import and Query
+There are in total 3 execution modes. 
+```Java
+public class QueryWorker implements Runnable {
+    public void run() {
+        // Implement the following three modes
+        if (mode == 0) {
+            runSerial();
+        } else if (mode == 1) {
+            runParallel();
+        } else if (mode == 2) {
+            runParallelWithOrder();
+        }
+    }
+}
+```
+1. `0` means sequential execution. You need to implemented `runSerial`.
+2. `1` means
+3. mode `2` enhances mode `1` with the goal of reducing redundant tree traversal when querying class information.
+   As you can observe, the one query on classes could rely on the result of another. For instance, `find Overriding Methods` depends on the class inheritance hierarchy computed by `findSuperClasses`. Please consider the query dependence relation based on your understanding and implement `runParallelWithOrder` with less tree traversals as possible. We would grade your code based on the times of traversal.
 
-#### Bonus Task: Implement an API misuse bug detector (10%)
+Once `run` method of `QueryWorker` is finished, please finish the `processCommands` method of `RapidASTManagerEngine`. The method create a worker based on the given commands and schedule these workers based on the execution modes. 
+
+```Java
+public List<Object> processCommands(List<Object[]> commands, int executionMode) {
+    // schedule workers based on commands and execution mode
+    return allResults;
+}
+```
+
+A list of commands is sampled below:
+
+```Java
+// query id, ast id, query name, query args
+1, 18, findClassesWithMain, {}
+2, 19, findClassesWithMain, {}
+...
+```
+
+The expected performance is mode 2 > mode 1 > mode 0. We would count the time elapsed to check if the performance of your implementations for three modes is correct.
+
+#### Task 3: Interleaved XML Import and Query
+
+In task 1 and 2, the XML import and query is handled separately. In task 3, you will receive a list of commands with XML import and query mixture. Noticed that for each AST, its loading commands is not guaranteed to be issued earlier than its query, whereas your implementation should take charges of this part. A list of commands is sampled below:
+
+```Java
+// query id, ast id, command name, command args
+1, 18, findClassesWithMain, {}
+2, 19, findClassesWithMain, {}
+3, 18, processXMLParsering, {"resources/pythonxml/"}
+...
+```
+
 
 ### What YOU need to do
 
@@ -98,14 +152,14 @@ You can fix the problem of your implementation based on the failed test cases.
 
 ### Submission Policy
 
-Please submit your code on Canvas before the deadline **April 13, 2024, 23:59:59.** You should submit a single text file specified as follows:
+Please submit your code on Canvas before the deadline **May 11, 2024, 23:59:59.** You should submit a single text file specified as follows:
 
 - A file named `<itsc-id>.txt` containing the URL of your private repository at the first line. We will ask you to add the TAs' accounts as collaborators near the deadline.
 
-For example, a student CHAN, Tai Man with ITSC ID `tmchanaa` having a repository at `https://github.com/tai-man-chan/COMP3021-PA2` should submit a file named `tmchanaa.txt` with the following content:
+For example, a student CHAN, Tai Man with ITSC ID `tmchanaa` having a repository at `https://github.com/tai-man-chan/COMP3021-PA3` should submit a file named `tmchanaa.txt` with the following content:
 
 ```txt
-https://github.com/tai-man-chan/COMP3021-PA2
+https://github.com/tai-man-chan/COMP3021-PA3
 ```
 
 Note that we are using automatic scripts to process your submission on test cases rather than testing via the console manually. **DO NOT add extra explanation** to the file; otherwise, they will prevent our scripts from correctly processing your submission. 
@@ -128,9 +182,9 @@ We trust that you are familiar with the Honor Code of HKUST. If not, refer to [t
 
 ### Contact US
 
-If you have any questions on the PA2, please email TA Wei Chen via wei.chen@connect.ust.hk
+If you have any questions on the PA3, please email TA Wei Chen via wei.chen@connect.ust.hk
 
 ---
 
-Last Update: March 24, 2024
+Last Update: April 21, 2024
 
