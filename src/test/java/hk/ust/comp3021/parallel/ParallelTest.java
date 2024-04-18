@@ -12,44 +12,85 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import hk.ust.comp3021.ASTManagerEngine;
+import hk.ust.comp3021.RapidASTManagerEngine;
 import hk.ust.comp3021.utils.TestKind;
 import hk.ust.comp3021.utils.ASTModule;
 
 public class ParallelTest {
-    @Tag(TestKind.PUBLIC)
-    @Test
-    public void testParallelLoading() {
-        ASTManagerEngine engine = new ASTManagerEngine();
-        engine.processingXMLParsingParallel("resources/pythonxml", List.of("18", "19", "20", "100"));
-        HashMap<String, ASTModule> id2ASTModules = engine.getId2ASTModules();
-        assertEquals(id2ASTModules.size(), 3);
+
+    public void checkResults(List<Object> expecteds, List<Object> actuals, List<Object[]> commands) {
+        for(int i=0; i<expecteds.size(); i++) {
+            Object expected = expecteds.get(i);
+            Object actual = actuals.get(i);
+            String queryName = (String) ((Object[])commands.get(i))[2];
+
+            if(queryName == "findClassesWithMain") {
+                assertEquals((Set<String>)expected, new HashSet<String>((List<String>)actual));
+            } else {
+                assertEquals(expected, actual);
+            }
+
+        }
+
     }
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelQuery() {
-        ASTManagerEngine engine = new ASTManagerEngine();
-        engine.processingXMLParsingParallel("resources/pythonxml", List.of("18", "19", "20"));
+    public void testParallelLoading() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20", "100"));
+        assertEquals(3, engine.getId2ASTModule().size());
+    }
 
-        HashMap<String, List<String>> orders = new HashMap<>();
-        orders.put("18", List.of("19"));
-        orders.put("19", List.of("20"));
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testSerialExecution() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20"));
 
-        engine.findClassesWithMainParallel(orders);
-
-        HashMap<String, List<String>> results = engine.getQueryResults();
-        HashMap<String, List<String>> expectedResults = new HashMap<>();
-        expectedResults.put("18", List.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.put("19", List.of("C", "D", "F", "G", "H"));
-        expectedResults.put("20", List.of("B", "D"));
-        assertEquals(expectedResults, results);
-
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "20", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
         
-        List<String>queryOrder = engine.getQueryRunningOrder();
-        List<String> expectedOrder = List.of("18", "19", "20");
-        assertEquals(queryOrder, expectedOrder);
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        expectedResults.add(Set.of("B", "D"));
+        expectedResults.add(true);
 
+        engine.processCommands(commands, 0);
+
+        List<Object> allResults = engine.getAllResults();
+        
+        checkResults(expectedResults, allResults, commands);
+    }
+
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelExecution() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20"));
+
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "20", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
+        
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        expectedResults.add(Set.of("B", "D"));
+        expectedResults.add(true);
+
+        engine.processCommands(commands, 1);
+
+        List<Object> allResults = engine.getAllResults();
+        
+        checkResults(expectedResults, allResults, commands);
 
     }
 }
