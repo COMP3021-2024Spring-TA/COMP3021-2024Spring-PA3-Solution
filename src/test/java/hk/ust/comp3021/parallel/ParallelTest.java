@@ -30,9 +30,6 @@ public class ParallelTest {
                 assertEquals(expected, actual);
             }
 
-
-
-
         }
 
     }
@@ -68,5 +65,32 @@ public class ParallelTest {
         List<Object> allResults = engine.getAllResults();
         
         checkResults(expectedResults, allResults, commands);
+    }
+
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelExecution() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20"));
+
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "20", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
+        
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        expectedResults.add(Set.of("B", "D"));
+        expectedResults.add(true);
+
+        engine.processCommands(commands, 1);
+
+        List<Object> allResults = engine.getAllResults();
+        
+        checkResults(expectedResults, allResults, commands);
+
     }
 }

@@ -88,7 +88,7 @@ public class QueryWorker implements Runnable {
                 this.result = query.answerIfACalledB.test((String) args[0], (String) args[1]);
                 break;
             }
-            
+
             case "findSuperClasses": {
                 QueryOnClass query = new QueryOnClass(id2ASTModules.get(astID));
                 this.result = query.findSuperClasses.apply((String) args[0]);
@@ -120,7 +120,7 @@ public class QueryWorker implements Runnable {
     }
     private void runParallel() {
         // TODO:
-
+        runSerial();
     }
 
     private void runParallelWithOrder() {

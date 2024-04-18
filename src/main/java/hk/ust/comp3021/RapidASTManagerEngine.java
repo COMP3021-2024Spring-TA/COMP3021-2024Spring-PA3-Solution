@@ -74,6 +74,30 @@ public class RapidASTManagerEngine {
 
     private void executeCommandsParallel(List<QueryWorker> workers) {
         // TODO
+        List<Thread> threads = new ArrayList<>();
+
+        for(QueryWorker worker : workers) {
+            threads.add(new Thread(worker));
+        }
+
+        for(Thread thread : threads) {
+            thread.start();
+        }
+
+        try {
+            for(Thread thread : threads) {
+                thread.join();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        for(QueryWorker worker : workers) {
+            allResults.add(worker.getResult());
+        }
+
+
+
+
     }
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
