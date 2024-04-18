@@ -95,13 +95,11 @@ public class RapidASTManagerEngine {
             allResults.add(worker.getResult());
         }
 
-
-
-
     }
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
         // TODO
+
     }
 
 }
