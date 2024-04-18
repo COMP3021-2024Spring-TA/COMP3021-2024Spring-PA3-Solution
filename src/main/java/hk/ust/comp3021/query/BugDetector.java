@@ -18,7 +18,10 @@ public class BugDetector {
     /**
      * TODO Returns all the functions that contains a bug of unclosed files in the current module
      * {@link QueryOnClass#module}
+     *
      * @return results List of strings of names of the functions
      */
-    public Supplier<List<String>> detect = () -> {return null;};
+    public Supplier<List<String>> detect = () -> {
+        return null;
+    };
 }

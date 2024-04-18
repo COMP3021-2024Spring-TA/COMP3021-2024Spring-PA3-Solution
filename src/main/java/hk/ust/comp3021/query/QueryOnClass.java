@@ -10,9 +10,7 @@ import java.util.function.*;
 
 public class QueryOnClass{
     ASTModule module = null;
-
-
-
+    
     public QueryOnClass(ASTModule module) {
         this.module = module;
     }

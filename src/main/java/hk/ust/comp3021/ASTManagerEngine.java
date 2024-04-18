@@ -13,7 +13,6 @@ public class ASTManagerEngine {
     public QueryOnNode queryOnNode = new QueryOnNode(id2ASTModules);
     private List<String> queryRunningOrder = new ArrayList<String>();
     private HashMap<String, List<String>> id2QueryResults = new HashMap<>();
-
     
 
     public HashMap<String, ASTModule> getId2ASTModules() {

@@ -18,7 +18,8 @@ public class QueryOnNode {
     }
 
     /**
-     * TODO `findFuncWithArgGtN` find all functions whose # arguments > given `paramN` in all modules {@link QueryOnNode#id2ASTModules}
+     * TODO `findFuncWithArgGtN` find all functions whose # arguments > given `paramN` in all modules 
+     * {@link QueryOnNode#id2ASTModules}
      *
      * @param paramN the number of arguments user expects
      * @return null as PA1, simply print out all functions that satisfy the requirements with format ModuleID_FuncName_LineNo
@@ -104,7 +105,8 @@ public class QueryOnNode {
     };
 
     /**
-     * TODO `processNodeFreq` sort all functions in all modules {@link QueryOnNode#id2ASTModules} based on the number of nodes in FunctionDefStmt subtree
+     * TODO `processNodeFreq` sort all functions in all modules {@link QueryOnNode#id2ASTModules} based 
+     * on the number of nodes in FunctionDefStmt subtree
      *
      * @param null
      * @return a list of entries sorted in descending order where the key is function name 

@@ -27,7 +27,8 @@ public class QueryOnMethod {
 
 
     /**
-     * TODO `findEqualCompareInFunc` find all comparison expression with operator \"==\" in current module {@link QueryOnMethod#module}
+     * TODO `findEqualCompareInFunc` find all comparison expression with operator \"==\" in current module 
+     * {@link QueryOnMethod#module}
      *
      * @param funcName the name of the function to be queried
      * @return results List of strings where each represents a comparison expression, in format, lineNo:colOffset-endLineNo:endColOffset
@@ -51,7 +52,8 @@ public class QueryOnMethod {
     };
 
     /**
-     * TODO `findFuncWithBoolParam` find all functions that use boolean parameter as if condition in current module {@link QueryOnMethod#module}
+     * TODO `findFuncWithBoolParam` find all functions that use boolean parameter as if condition in current module 
+     * {@link QueryOnMethod#module}
      *
      * @param null
      * @return List of strings where each represents the name of function that satisfy the requirements
@@ -97,7 +99,8 @@ public class QueryOnMethod {
 
 
     /**
-     * TODO Given func name `funcName`, `findUnusedParamInFunc` find all unused parameter in current module {@link QueryOnMethod#module}
+     * TODO Given func name `funcName`, `findUnusedParamInFunc` find all unused parameter in current module 
+     * {@link QueryOnMethod#module}
      *
      * @param funcName to be queried function name
      * @return results List of strings where each represents the name of an unused parameter
@@ -172,7 +175,8 @@ public class QueryOnMethod {
             new ArrayList<>(func.filter(expr -> expr instanceof CallExpr));
 
     /**
-     * TODO Given func name `funcName`, `findDirectCalledOtherB` find all functions being direct called by functions other than B in current module {@link QueryOnMethod#module}
+     * TODO Given func name `funcName`, `findDirectCalledOtherB` find all functions being direct called by functions 
+     * other than B in current module {@link QueryOnMethod#module}
      *
      * @param funcName the name of function B
      * @return results List of strings where each represents the name of a function that satisfy the requirement
@@ -223,7 +227,8 @@ public class QueryOnMethod {
     };
 
     /**
-     * TODO Given func name `funcNameA` and `funcNameB`, `answerIfACalledB` checks if A calls B directly or transitively in current module {@link QueryOnMethod#module}
+     * TODO Given func name `funcNameA` and `funcNameB`, `answerIfACalledB` checks if A calls B directly 
+     * or transitively in current module {@link QueryOnMethod#module}
      *
      * @param funcNameA the name of function A
      * @param funcNameB the name of function B
@@ -237,18 +242,19 @@ public class QueryOnMethod {
         if (findFuncInModule.apply(funcNameA).isPresent() && findFuncInModule.apply(funcNameB).isPresent()) {
             List<String> tobeProcessed = new ArrayList<>();
             tobeProcessed.add(funcNameA);
-
+            boolean if_fisrt = true;
+            
             while (!tobeProcessed.isEmpty()) {
                 String curFuncName = tobeProcessed.get(0);
                 tobeProcessed.remove(0);
 
-                if (curFuncName.equals(funcNameB)) {
+                if (curFuncName.equals(funcNameB) && !if_fisrt) {
                     return true;
                 }
                 if (findFuncInModule.apply(curFuncName).isEmpty()) {
                     continue;
                 }
-
+                if_fisrt = false;
                 ASTElement curFuncNode = findFuncInModule.apply(curFuncName).get();
                 for (ASTElement called : findAllCalledFuncs.apply(curFuncNode)) {
                     if (getCallExprName.apply(called).isEmpty()) {
@@ -261,6 +267,5 @@ public class QueryOnMethod {
         }
         return false;
     };
-
 
 }
