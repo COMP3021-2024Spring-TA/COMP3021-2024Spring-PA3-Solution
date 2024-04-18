@@ -2,7 +2,12 @@ package hk.ust.comp3021.parallel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -66,18 +71,20 @@ public class ParallelTest {
     @Test
     public void testParallelExecution() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20"));
+        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "1"));
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
-        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "19", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "20", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"0", "1", "calculateOp2Nums", new Object[] {}});
+        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
+        
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        expectedResults.add(Set.of("B", "D"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
         expectedResults.add(true);
 
         engine.processCommands(commands, 1);
@@ -85,6 +92,12 @@ public class ParallelTest {
         List<Object> allResults = engine.getAllResults();
 
         checkResults(expectedResults, allResults, commands);
+
+    }
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelExecutionWithOrder() {
 
     }
 }
