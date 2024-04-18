@@ -3,6 +3,7 @@ package hk.ust.comp3021;
 import java.util.List;
 import java.util.stream.Stream;
 
+import hk.ust.comp3021.parallel.ParserWorker;
 import hk.ust.comp3021.parallel.QueryWorker;
 import hk.ust.comp3021.query.*;
 import hk.ust.comp3021.utils.*;
@@ -16,9 +17,33 @@ public class RapidASTManagerEngine {
     private final HashMap<String, ASTModule> id2ASTModules = new HashMap<>();
     private final List<Object> allResults = new ArrayList<>();
 
+    public HashMap<String, ASTModule> getId2ASTModule2() {
+        return id2ASTModules;
+    }
+
+    public List<Object> getAllResults() {
+        return allResults;
+    }
 
     public void processXMLParsing(String xmlDirPath, List<String> xmlIDs) {
         // TODO: use ParserWorkers.
+        List<Thread> threads = new ArrayList<>();
+        for(String xmlID: xmlIDs) {
+            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
+            threads.add(new Thread(worker));
+        }
+
+        for(Thread thread : threads) {
+            thread.start();
+        }
+
+        try {
+            for(Thread thread : threads) {
+                thread.join();
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
