@@ -47,13 +47,21 @@ public class RapidASTManagerEngine {
 //            e.printStackTrace();
 //        }
 
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
         for (String xmlID : xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
             executor.execute(worker);
         }
         executor.shutdown();
-
+        while (true) {
+            if (executor.isTerminated()) {
+                break;
+            }
+        }
+//        for (String xmlID : xmlIDs) {
+//            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
+//            worker.run();
+//        }
     }
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
@@ -114,8 +122,66 @@ public class RapidASTManagerEngine {
 
     public List<Object> processCommandsInterLeaved(List<Object[]> commands) {
         // TODO
+        List<QueryWorker> workers = new ArrayList<>();
+        List<ParserWorker> parsers = new ArrayList<>();
+
+        for (Object[] command : commands) {
+            if (command[2].equals("processXMLParsing")) {
+                ParserWorker parser = new ParserWorker((String) command[1], (String) ((Object[]) command[3])[0], id2ASTModules);
+                parsers.add(parser);
+            } else {
+                QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0],
+                        (String) command[1], (String) command[2], (Object[]) command[3], 0);
+                workers.add(worker);
+            }
+        }
+        
+        // unordered XML loading
+        List<Thread> parserThreads = new ArrayList<>();
+        List<Thread> queryThreads = new ArrayList<>();
+        
+        for (ParserWorker parser : parsers) {
+            Thread thread = new Thread(()-> {
+                parser.run();
+                System.out.println("AST ID Loaded " + parser.getXmlID());
+            });
+            parserThreads.add(thread);
+            thread.start();
+        }
+        
+        for (QueryWorker worker: workers) {
+            Thread thread = new Thread(() -> {
+                synchronized (id2ASTModules) {
+                    if (!id2ASTModules.containsKey(worker.astID) || id2ASTModules.get(worker.astID) == null) {
+                        try {
+                            System.out.println("AST ID Waiting " + worker.astID);
+                            id2ASTModules.wait();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                        System.out.println("AST ID Ready " + worker.astID);
+                    }
+                }
+                worker.run();
+                System.out.println("Query ID Finish " + worker.queryID);
+            });
+            queryThreads.add(thread);
+            thread.start();
+        }
+
+        try {
+            for (Thread thread : parserThreads) {
+                thread.join();
+            }
+            for (Thread thread: queryThreads) {
+                thread.join();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        for (QueryWorker worker : workers) {
+            allResults.add(worker.getResult());
+        }
         return allResults;
     }
-
-
 }

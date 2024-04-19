@@ -134,6 +134,7 @@ public class QueryOnClass {
      */
     public Supplier<List<String>> findClassesWithMain = () -> {
         List<String> results = new ArrayList<String>();
+        System.out.println("AST ID " + module.getASTID() + " " + module);
         module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
             String className = ((ClassDefStmt) clazz).getName();
             List<String> allMethods = findAllMethods.apply(className);

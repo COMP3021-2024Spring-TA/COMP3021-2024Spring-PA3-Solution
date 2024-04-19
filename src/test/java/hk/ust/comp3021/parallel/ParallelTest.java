@@ -8,6 +8,9 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,33 @@ public class ParallelTest {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20", "100"));
         assertEquals(3, engine.getId2ASTModule().size());
+    }
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelLoadingAll() throws InterruptedException {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        final AtomicBoolean running = new AtomicBoolean(true);
+
+        Thread counterThread = new Thread(() -> {
+            while (running.get()) {
+                System.out.println("Current Active Thread " + Thread.activeCount());
+                try {
+                    Thread.sleep(10); 
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        counterThread.start();
+        engine.processXMLParsing("resources/pythonxmlPA1/", 
+                IntStream.rangeClosed(0, 836)
+                        .boxed()
+                        .map(Object::toString)
+                        .collect(Collectors.toList()));
+        running.set(false);
+        counterThread.join();
+        assertEquals(837, engine.getId2ASTModule().size());
     }
 
     @Tag(TestKind.PUBLIC)
@@ -99,5 +129,32 @@ public class ParallelTest {
     @Test
     public void testParallelExecutionWithOrder() {
 
+    }
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testInterleavedImportQuery() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        expectedResults.add(true);
+
+        engine.processCommandsInterLeaved(commands);
+        List<Object> allResults = engine.getAllResults();
+        checkResults(expectedResults, allResults, commands);
     }
 }

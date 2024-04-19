@@ -18,6 +18,11 @@ public class ParserWorker implements Runnable {
         this.id2ASTModules = id2ASTModules;
     }
 
+    public String getXmlID() {
+        return xmlID;
+    }
+    
+
     @Override
     public void run() {
         // TODO:
@@ -26,6 +31,7 @@ public class ParserWorker implements Runnable {
         if (!parser.isErr()) {
             synchronized (id2ASTModules) {
                 id2ASTModules.put(xmlID, parser.getASTModule());
+                id2ASTModules.notifyAll();
             }
             System.out.println("Parse " + xmlID + " Succeed! The XML file is loaded!");
         } else {
