@@ -25,7 +25,7 @@ public class ParserWorker implements Runnable {
 
     @Override
     public void run() {
-        // TODO:
+        // TODO: run method for parser
         ASTParser parser = new ASTParser(Paths.get(xmlDirPath).resolve("python_" + xmlID + ".xml").toString());
         parser.parse();
         if (!parser.isErr()) {

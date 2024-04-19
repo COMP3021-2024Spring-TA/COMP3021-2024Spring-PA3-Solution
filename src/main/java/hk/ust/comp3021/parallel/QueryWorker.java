@@ -40,7 +40,7 @@ public class QueryWorker implements Runnable {
     }
 
     private void runSerial() {
-        // TODO
+        // TODO: run specific query name, the implementation of query is given in jar package
         switch (queryName) {
             case "findFuncWithArgGtN": {
                 QueryOnNode query = new QueryOnNode(id2ASTModules);
@@ -121,12 +121,12 @@ public class QueryWorker implements Runnable {
     }
 
     private void runParallel() {
-        // TODO:
-        switch(queryName) {
+        // TODO: parallel the query on node 
+        switch (queryName) {
             case "calculateOp2Nums": {
                 HashMap<String, HashMap<String, Integer>> id2PartialResults = new HashMap<>();
                 List<Thread> subThreads = new ArrayList<Thread>();
-                for(String id: id2ASTModules.keySet()) {
+                for (String id : id2ASTModules.keySet()) {
                     HashMap<String, ASTModule> partialInput = new HashMap<>();
                     partialInput.put(id, id2ASTModules.get(id));
                     Thread subThread = new Thread(() -> {
@@ -140,17 +140,17 @@ public class QueryWorker implements Runnable {
                     subThread.start();
                 }
                 try {
-                    for(Thread subThread: subThreads) {
+                    for (Thread subThread : subThreads) {
                         subThread.join();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 HashMap<String, Integer> result = new HashMap<>();
-                for(HashMap<String,Integer> partialRes : id2PartialResults.values()) {
-                    for(String key: partialRes.keySet()) {
+                for (HashMap<String, Integer> partialRes : id2PartialResults.values()) {
+                    for (String key : partialRes.keySet()) {
                         Integer initVal = 0;
-                        if(result.containsKey(key)) {
+                        if (result.containsKey(key)) {
                             initVal = result.get(key);
                         }
                         result.put(key, initVal + partialRes.get(key));
@@ -162,7 +162,7 @@ public class QueryWorker implements Runnable {
             case "processNodeFreq": {
                 HashMap<String, List<Entry<String, Integer>>> id2PartialResults = new HashMap<>();
                 List<Thread> subThreads = new ArrayList<Thread>();
-                for(String id: id2ASTModules.keySet()) {
+                for (String id : id2ASTModules.keySet()) {
                     HashMap<String, ASTModule> partialInput = new HashMap<>();
                     partialInput.put(id, id2ASTModules.get(id));
                     Thread subThread = new Thread(() -> {
@@ -176,7 +176,7 @@ public class QueryWorker implements Runnable {
                     subThread.start();
                 }
                 try {
-                    for(Thread subThread: subThreads) {
+                    for (Thread subThread : subThreads) {
                         subThread.join();
                     }
                 } catch (Exception e) {
@@ -184,12 +184,12 @@ public class QueryWorker implements Runnable {
                 }
 
                 HashMap<String, Integer> counter = new HashMap<>();
-                
-                for(List<Entry<String, Integer>> partialRes : id2PartialResults.values()) {
-                    for(Entry<String, Integer> entry: partialRes) {
+
+                for (List<Entry<String, Integer>> partialRes : id2PartialResults.values()) {
+                    for (Entry<String, Integer> entry : partialRes) {
                         String key = entry.getKey();
                         Integer initValue = 0;
-                        if(counter.containsKey(key)) {
+                        if (counter.containsKey(key)) {
                             initValue = counter.get(key);
                         }
                         counter.put(key, initValue + entry.getValue());
@@ -202,7 +202,7 @@ public class QueryWorker implements Runnable {
             case "calculateNode2Nums": {
                 HashMap<String, Map<String, Long>> id2PartialResults = new HashMap<>();
                 List<Thread> subThreads = new ArrayList<Thread>();
-                for(String id: id2ASTModules.keySet()) {
+                for (String id : id2ASTModules.keySet()) {
                     HashMap<String, ASTModule> partialInput = new HashMap<>();
                     partialInput.put(id, id2ASTModules.get(id));
                     Thread subThread = new Thread(() -> {
@@ -215,17 +215,17 @@ public class QueryWorker implements Runnable {
                     subThread.start();
                 }
                 try {
-                    for(Thread subThread: subThreads) {
+                    for (Thread subThread : subThreads) {
                         subThread.join();
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 Map<String, Long> result = new HashMap<>();
-                for(Map<String,Long> partialRes : id2PartialResults.values()) {
-                    for(String key: partialRes.keySet()) {
+                for (Map<String, Long> partialRes : id2PartialResults.values()) {
+                    for (String key : partialRes.keySet()) {
                         Long initVal = 0L;
-                        if(result.containsKey(key)) {
+                        if (result.containsKey(key)) {
                             initVal = result.get(key);
                         }
                         result.put(key, initVal + partialRes.get(key));
@@ -241,7 +241,7 @@ public class QueryWorker implements Runnable {
     }
 
     private void runParallelWithOrder() {
-        //TODO:
+        // TODO: determine the order of query on class to reduce redundant execution
         runParallel();
     }
 

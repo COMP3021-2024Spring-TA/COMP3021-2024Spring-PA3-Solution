@@ -28,7 +28,7 @@ public class RapidASTManagerEngine {
     }
 
     public void processXMLParsingPool(String xmlDirPath, List<String> xmlIDs, int numThread) {
-        // TODO: use ParserWorkers and thread pool.
+        // TODO 1: use ParserWorkers and thread pool.
         ExecutorService executor = Executors.newFixedThreadPool(numThread);
         for (String xmlID : xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
@@ -44,7 +44,7 @@ public class RapidASTManagerEngine {
     }
 
     public void processXMLParsingDivide(String xmlDirPath, List<String> xmlIDs, int numThread) {
-        // TODO: use ParserWorkers and divide tasks manually.
+        // TODO 2: use ParserWorkers and divide tasks manually.
         List<Thread> threads = new ArrayList<>(numThread);
 
         for (int i = 0; i < numThread; i++) {
@@ -70,6 +70,7 @@ public class RapidASTManagerEngine {
 
 
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
+        // TODO 3: handle different execution modes
         List<QueryWorker> workers = new ArrayList<>();
 
         for (Object[] command : commands) {
@@ -89,6 +90,7 @@ public class RapidASTManagerEngine {
     }
 
     private void executeCommandsSerial(List<QueryWorker> workers) {
+        // TODO 4: sequential execution
         for (QueryWorker worker : workers) {
             worker.run();
             Object result = worker.getResult();
@@ -97,7 +99,7 @@ public class RapidASTManagerEngine {
     }
 
     private void executeCommandsParallel(List<QueryWorker> workers) {
-        // TODO
+        // TODO 5: parallel execution
         List<Thread> threads = new ArrayList<>();
 
         for (QueryWorker worker : workers) {
@@ -121,12 +123,12 @@ public class RapidASTManagerEngine {
     }
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
-        // TODO
+        // TODO 6: parallel execution with order
 
     }
 
     public List<Object> processCommandsInterLeaved(List<Object[]> commands) {
-        // TODO
+        // TODO 7: interleaved parsing and query with unlimited threads
         List<QueryWorker> workers = new ArrayList<>();
         List<ParserWorker> parsers = new ArrayList<>();
 
@@ -192,7 +194,7 @@ public class RapidASTManagerEngine {
 
 
     public List<Object> processCommandsInterLeavedTwoThread(List<Object[]> commands) {
-        // TODO
+        // TODO 8: interleaved parsing and query with two threads
         List<QueryWorker> workers = new ArrayList<>();
         List<ParserWorker> parsers = new ArrayList<>();
 
@@ -245,6 +247,7 @@ public class RapidASTManagerEngine {
     }
 
     public List<Object> processCommandsInterLeavedFixedThread(List<Object[]> commands, int numThread) {
+        // TODO: Bonus: interleaved parsing and query with given number of threads
         // TODO: separate parser tasks and query tasks with the goal of efficiency
         return allResults;
     }
