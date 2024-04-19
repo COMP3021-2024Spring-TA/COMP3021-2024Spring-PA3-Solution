@@ -44,8 +44,7 @@ public class QueryWorker implements Runnable {
         switch (queryName) {
             case "findFuncWithArgGtN": {
                 QueryOnNode query = new QueryOnNode(id2ASTModules);
-                query.findFuncWithArgGtN.accept((Integer) args[0]);
-                this.result = null;
+                this.result = query.findFuncWithArgGtN.apply((Integer) args[0]);
                 break;
             }
             case "calculateOp2Nums": {

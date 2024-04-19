@@ -230,7 +230,8 @@ public class ASTManagerEngine {
             try {
                 int number = Integer.parseInt(paramN);
                 System.out.println("Parsed number: " + number);
-                queryOnNode.findFuncWithArgGtN.accept(number);
+                List<String> result = queryOnNode.findFuncWithArgGtN.apply(number);
+                result.forEach(System.out::println);
             } catch (NumberFormatException e) {
                 System.out.println("Error! Invalid number format");
             }

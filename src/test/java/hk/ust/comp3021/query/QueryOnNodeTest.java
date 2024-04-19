@@ -23,17 +23,15 @@ public class QueryOnNodeTest {
         PrintStream printStream = new PrintStream(outputStream);
         PrintStream originalPrintStream = System.out;
         System.setOut(printStream);
-
-        engine.queryOnNode.findFuncWithArgGtN.accept(4);
-        System.setOut(originalPrintStream);
-        String printedOutput = outputStream.toString();
+        
+        List<String> generateOutput = engine.queryOnNode.findFuncWithArgGtN.apply(4);
 
         // the function name should be astID_FuncName_UniqueID
         Set<String> expectedOutput = Set.of(
                 "227_diagonalBinarySearch_2",
                 "227_rowBinarySearch_13",
                 "227_colBinarySearch_27");
-        assertEquals(expectedOutput, Set.of(printedOutput.trim().split("\\r?\\n")));
+        assertEquals(expectedOutput, new HashSet<>(generateOutput));
     }
 
     @Tag(TestKind.PUBLIC)

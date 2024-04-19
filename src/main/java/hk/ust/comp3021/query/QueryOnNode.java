@@ -25,13 +25,16 @@ public class QueryOnNode {
      * @return null as PA1, simply print out all functions that satisfy the requirements with format ModuleID_FuncName_LineNo
      * Hints1: use {@link ASTElement#filter(Predicate)} method to implement the function
      */
-    public Consumer<Integer> findFuncWithArgGtN = paramN -> {
+    public Function<Integer, List<String>> findFuncWithArgGtN = paramN -> {
+        List<String> finalResult = new ArrayList<>();
         id2ASTModules.values().forEach(module -> {
             module.filter(node -> node instanceof FunctionDefStmt)
                     .stream()
                     .filter(func -> ((FunctionDefStmt) func).getParamNum() >= paramN)
-                    .forEach(func -> System.out.println(module.getASTID() + "_" + ((FunctionDefStmt) func).getName() + "_" + func.getLineNo()));
+                    .map(func -> module.getASTID() + "_" + ((FunctionDefStmt) func).getName() + "_" + func.getLineNo())
+                    .forEach(finalResult::add);
         });
+        return finalResult;
     };
 
 
