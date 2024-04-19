@@ -27,27 +27,9 @@ public class RapidASTManagerEngine {
         return allResults;
     }
 
-    public void processXMLParsing(String xmlDirPath, List<String> xmlIDs) {
-        // TODO: use ParserWorkers.
-//        List<Thread> threads = new ArrayList<>();
-//        for (String xmlID : xmlIDs) {
-//            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
-//            threads.add(new Thread(worker));
-//        }
-//
-//        for (Thread thread : threads) {
-//            thread.start();
-//        }
-//
-//        try {
-//            for (Thread thread : threads) {
-//                thread.join();
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+    public void processXMLParsingPool(String xmlDirPath, List<String> xmlIDs, int numThread) {
+        // TODO: use ParserWorkers and thread pool.
+        ExecutorService executor = Executors.newFixedThreadPool(numThread);
         for (String xmlID : xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
             executor.execute(worker);
@@ -58,12 +40,35 @@ public class RapidASTManagerEngine {
                 break;
             }
         }
-//        for (String xmlID : xmlIDs) {
-//            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
-//            worker.run();
-//        }
+
     }
 
+    public void processXMLParsingDivide(String xmlDirPath, List<String> xmlIDs, int numThread) {
+        // TODO: use ParserWorkers and divide tasks manually.
+        List<Thread> threads = new ArrayList<>(numThread);
+
+        for (int i = 0; i < numThread; i++) {
+            int finalI = i;
+            Thread thread = new Thread(() -> {
+                for (int j = finalI; j < xmlIDs.size(); j += numThread) {
+                    ParserWorker worker = new ParserWorker(xmlIDs.get(j), xmlDirPath, id2ASTModules);
+                    worker.run();
+                }
+            });
+            threads.add(thread);
+            thread.start();
+        }
+
+        try {
+            for (Thread thread : threads) {
+                thread.join();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
         List<QueryWorker> workers = new ArrayList<>();
 

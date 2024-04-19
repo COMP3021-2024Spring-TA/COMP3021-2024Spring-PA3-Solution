@@ -1,6 +1,7 @@
 package hk.ust.comp3021.utils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.*;
@@ -79,6 +80,11 @@ public class ASTParser {
             Stack<XMLNode> nodeStack = new Stack<>();
 
             String xmlFileName = Paths.get(xmlFilePath).toString();
+            
+            if (!Files.exists(Paths.get(xmlFilePath))) {
+                isErr = true;
+                return;
+            }
 
             BufferedReader reader = new BufferedReader(new FileReader(xmlFileName));
 

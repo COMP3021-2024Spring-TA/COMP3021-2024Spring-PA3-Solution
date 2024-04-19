@@ -38,15 +38,15 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelLoading() {
+    public void testParallelLoadingPool() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20", "100"));
+        engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "20", "100"), 4);
         assertEquals(3, engine.getId2ASTModule().size());
     }
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelLoadingAll() throws InterruptedException {
+    public void testParallelLoadingAllPool() throws InterruptedException {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         final AtomicBoolean running = new AtomicBoolean(true);
 
@@ -61,11 +61,41 @@ public class ParallelTest {
             }
         });
         counterThread.start();
-        engine.processXMLParsing("resources/pythonxmlPA1/", 
+        System.out.println("Initial Active Thread " + Thread.activeCount());
+        engine.processXMLParsingPool("resources/pythonxmlPA1/", 
                 IntStream.rangeClosed(0, 836)
                         .boxed()
                         .map(Object::toString)
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toList()), 4);
+        running.set(false);
+        counterThread.join();
+        assertEquals(837, engine.getId2ASTModule().size());
+    }
+
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelLoadingAllDivide() throws InterruptedException {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        final AtomicBoolean running = new AtomicBoolean(true);
+        
+        Thread counterThread = new Thread(() -> {
+            while (running.get()) {
+                System.out.println("Current Active Thread " + Thread.activeCount());
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        });
+        counterThread.start();
+        System.out.println("Initial Active Thread " + Thread.activeCount());
+        engine.processXMLParsingDivide("resources/pythonxmlPA1/",
+                IntStream.rangeClosed(0, 836)
+                        .boxed()
+                        .map(Object::toString)
+                        .collect(Collectors.toList()), 4);
         running.set(false);
         counterThread.join();
         assertEquals(837, engine.getId2ASTModule().size());
@@ -75,7 +105,7 @@ public class ParallelTest {
     @Test
     public void testSerialExecution() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "20"));
+        engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "20"), 4);
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
@@ -101,7 +131,7 @@ public class ParallelTest {
     @Test
     public void testParallelExecution() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        engine.processXMLParsing("resources/pythonxml/", List.of("18", "19", "1"));
+        engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "1"), 4);
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
