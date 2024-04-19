@@ -187,4 +187,31 @@ public class ParallelTest {
         List<Object> allResults = engine.getAllResults();
         checkResults(expectedResults, allResults, commands);
     }
+
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testInterleavedImportQueryTwo() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        expectedResults.add(true);
+
+        engine.processCommandsInterLeavedTwoThread(commands);
+        List<Object> allResults = engine.getAllResults();
+        checkResults(expectedResults, allResults, commands);
+    }
 }
