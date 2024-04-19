@@ -16,6 +16,9 @@ public class QueryWorker implements Runnable {
 
     private Object result;
 
+    private Integer preds = 0;  // REMOVE
+    private List<QueryWorker> successors = new ArrayList<>(); // REMOVE
+
     public QueryWorker(HashMap<String, ASTModule> id2ASTModules, String queryID, String astID, String queryName, Object[] args, int mode) {
         this.id2ASTModules = id2ASTModules;
         this.queryID = queryID;
@@ -239,9 +242,34 @@ public class QueryWorker implements Runnable {
         }
     }
 
+
+    public void addPred() {  // REMOVE
+        this.preds += 1; 
+    }
+
+    public void addSucc(QueryWorker o) { // REMOVE
+        this.successors.add(o);
+    }
+
+    public synchronized void finishPred() {  // REMOVE
+        this.preds -= 1;
+    }
+
     private void runParallelWithOrder() {
         // TODO: determine the order of query on class to reduce redundant execution
+        while(true) {
+            // System.out.println("Waiting..." + this.queryName + this.preds);
+            if(preds <= 0) {
+                break;
+            }
+        }
+
         runParallel();
+        for(QueryWorker succ : this.successors) {
+            System.out.println(this.queryID + " notify " + succ.queryID);
+            succ.finishPred();
+        } 
+
     }
 
 }

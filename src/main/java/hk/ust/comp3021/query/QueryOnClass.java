@@ -7,12 +7,24 @@ import hk.ust.comp3021.utils.*;
 
 import java.util.*;
 import java.util.function.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class QueryOnClass {
     ASTModule module = null;
 
     public QueryOnClass(ASTModule module) {
         this.module = module;
+    }
+
+    private static Lock countLock = new ReentrantLock();
+
+    public static void clearCounts() {
+        findSuperClassesCount = haveSuperClassCount = findOverridingMethodsCount = findAllMethodsCount = findClassesWithMainCount = 0;
+    }
+
+    public static List<Integer> getCounts() {
+        return List.of(findSuperClassesCount, haveSuperClassCount, findOverridingMethodsCount, findAllMethodsCount, findClassesWithMainCount);
     }
 
     // Helper function
@@ -33,7 +45,13 @@ public class QueryOnClass {
      * Hint2: You can first find the direct super classes, and then RECURSIVELY finds the
      * super classes of the direct super classes.
      */
+
+    private static Integer findSuperClassesCount = 0;
     public Function<String, List<String>> findSuperClasses = (className) -> {
+        countLock.lock();
+        findSuperClassesCount += 1;
+        countLock.unlock();
+        
         List<String> results = new ArrayList<>();
         if (findClassInModule.apply(className, module).isPresent()) {
             ClassDefStmt clazz = (ClassDefStmt) findClassInModule.apply(className, module).get();
@@ -59,7 +77,12 @@ public class QueryOnClass {
      * @return returns true if B is A's super class, otherwise false.
      * Hint1: you can just reuse {@link QueryOnClass#findSuperClasses}
      */
+
+    private static Integer haveSuperClassCount = 0;
     public BiFunction<String, String, Boolean> haveSuperClass = (classA, classB) -> {
+        countLock.lock();
+        haveSuperClassCount += 1;
+        countLock.unlock();
         return findSuperClasses.apply(classA).contains(classB);
     };
 
@@ -87,7 +110,11 @@ public class QueryOnClass {
      * directly contains.
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
+    private static Integer findOverridingMethodsCount = 0;
     public Supplier<List<String>> findOverridingMethods = () -> {
+        countLock.lock();
+        findOverridingMethodsCount += 1;
+        countLock.unlock();
         List<String> results = new ArrayList<String>();
         module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
             String className = ((ClassDefStmt) clazz).getName();
@@ -116,7 +143,11 @@ public class QueryOnClass {
      * directly contains.
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
+    private static Integer findAllMethodsCount = 0;
     public Function<String, List<String>> findAllMethods = (className) -> {
+        countLock.lock();
+        findAllMethodsCount += 1;
+        countLock.unlock();
         HashSet<String> results = new HashSet<String>();
         results.addAll(findDirectMethods.apply(className));
         findSuperClasses.apply(className).forEach(superClass -> {
@@ -132,7 +163,11 @@ public class QueryOnClass {
      * @return results List of strings of names of the classes
      * Hint1: You can reuse the results of {@link QueryOnClass#findAllMethods}
      */
+    private static Integer findClassesWithMainCount = 0;
     public Supplier<List<String>> findClassesWithMain = () -> {
+        countLock.lock();
+        findClassesWithMainCount += 1;
+        countLock.unlock();
         List<String> results = new ArrayList<String>();
         System.out.println("AST ID " + module.getASTID() + " " + module);
         module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {

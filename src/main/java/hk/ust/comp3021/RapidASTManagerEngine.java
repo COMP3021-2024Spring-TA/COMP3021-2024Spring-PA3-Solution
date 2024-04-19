@@ -124,7 +124,29 @@ public class RapidASTManagerEngine {
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
         // TODO 6: parallel execution with order
-
+        for(QueryWorker worker : workers) {
+            for(QueryWorker worker2: workers) {
+                if (worker.queryID == worker2.queryID) continue;
+                if (worker.astID != worker2.astID) continue;
+                boolean runsBefore = false;
+                if(worker2.queryName == "findClassesWithMain") {
+                    if(worker.queryName == "findAllMethods" || worker.queryName == "findSuperClasses") {
+                        runsBefore = true;
+                    }
+                } else if(worker.queryName == "findSuperClasses") {
+                    if(worker2.queryName == "haveSuperClass" || worker2.queryName == "findOverridingMethods" || worker2.queryName == "findAllMethods") {
+                        if(worker.args[0] == worker2.args[0]) {
+                            runsBefore = true;
+                        }
+                    }
+                }
+                if(runsBefore) {
+                    worker2.addPred();
+                    worker.addSucc(worker2);
+                }
+            }
+        }
+        executeCommandsParallel(workers);
     }
 
     public List<Object> processCommandsInterLeaved(List<Object[]> commands) {

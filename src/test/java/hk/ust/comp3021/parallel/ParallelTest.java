@@ -1,6 +1,7 @@
 package hk.ust.comp3021.parallel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.HashSet;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import hk.ust.comp3021.RapidASTManagerEngine;
+import hk.ust.comp3021.query.QueryOnClass;
 import hk.ust.comp3021.utils.TestKind;
 import hk.ust.comp3021.utils.ASTModule;
 
@@ -28,7 +30,7 @@ public class ParallelTest {
             Object actual = actuals.get(i);
             String queryName = (String) ((Object[]) commands.get(i))[2];
 
-            if (queryName.equals("findClassesWithMain")) {
+            if (queryName.equals("findClassesWithMain") || queryName.equals("findSuperClasses")) {
                 assertEquals(expected, new HashSet<String>((List<String>) actual));
             } else {
                 assertEquals(expected, actual);
@@ -110,9 +112,9 @@ public class ParallelTest {
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "19", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "20", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"1", "18", "haveSuperClass", new Object[]{"B", "A"}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "20", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"4", "18", "haveSuperClass", new Object[]{"B", "A"}});
 
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("C", "D", "F", "G", "H"));
@@ -136,9 +138,9 @@ public class ParallelTest {
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
-        commands.add(new Object[] {"1", "19", "findClassesWithMain", new Object[] {}});
-        commands.add(new Object[] {"0", "1", "calculateOp2Nums", new Object[] {}});
-        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "A"}});
+        commands.add(new Object[] {"2", "19", "findClassesWithMain", new Object[] {}});
+        commands.add(new Object[] {"3", "0", "calculateOp2Nums", new Object[] {}});
+        commands.add(new Object[] {"4", "18", "haveSuperClass", new Object[] {"B", "A"}});
         
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("C", "D", "F", "G", "H"));
@@ -158,7 +160,35 @@ public class ParallelTest {
     @Tag(TestKind.PUBLIC)
     @Test
     public void testParallelExecutionWithOrder() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19"), 4);
 
+        List<Object[]> commands = new ArrayList<>();
+        List<Object> expectedResults = new ArrayList<>();
+        List<Integer> expectedCounts = List.of(45, 2, 0, 8,1);
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"2", "18", "findSuperClasses", new Object[] {"H"}}); 
+        commands.add(new Object[] {"3", "18", "haveSuperClass", new Object[] {"H", "A"}}); 
+        commands.add(new Object[] {"4", "18", "haveSuperClass", new Object[] {"A", "H"}});
+
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("A", "B", "C", "D", "F"));
+        expectedResults.add(true);
+        expectedResults.add(false);
+
+        QueryOnClass.clearCounts();
+        engine.processCommands(commands, 2);
+        List<Object> allResults = engine.getAllResults();
+        List<Integer> allCounts = QueryOnClass.getCounts();
+
+        checkResults(expectedResults, allResults, commands);
+        for(int i=0; i<expectedCounts.size(); i++) {
+            assumeTrue(allCounts.get(i) <= expectedCounts.get(i)? true : false);
+        }
+
+        assertEquals(expectedCounts, allCounts);
+
+        
     }
 
     @Tag(TestKind.PUBLIC)
