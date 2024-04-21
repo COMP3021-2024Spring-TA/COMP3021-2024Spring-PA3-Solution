@@ -27,8 +27,18 @@ public class RapidASTManagerEngine {
         return allResults;
     }
 
+    /**
+     * TODO: Implement `processXMLParsingPool` to load a list of XML files in parallel
+     * 
+     * @param xmlDirPath the directory of XML files to be loaded
+     * @param xmlIDs a list of XML file IDs
+     * @param numThread the number of threads you are allowed to use
+     *
+     * Hint1: you can use thread pool {@link ExecutorService} to implement the method
+     * Hint2: you can use {@link ParserWorker#run()} 
+     */
+    
     public void processXMLParsingPool(String xmlDirPath, List<String> xmlIDs, int numThread) {
-        // TODO 1: use ParserWorkers and thread pool.
         ExecutorService executor = Executors.newFixedThreadPool(numThread);
         for (String xmlID : xmlIDs) {
             ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
@@ -42,9 +52,19 @@ public class RapidASTManagerEngine {
         }
 
     }
-
+    
+    /**
+     * TODO: Implement `processXMLParsingDivide` to load a list of XML files in parallel
+     *
+     * @param xmlDirPath the directory of XML files to be loaded
+     * @param xmlIDs a list of XML file IDs
+     * @param numThread the number of threads you are allowed to use
+     *
+     * Hint1: you can **only** use {@link Thread} to implement the method
+     * Hint2: you can use {@link ParserWorker#run()}
+     * Hint3: please distribute the files to be loaded for each thread manually
+     */
     public void processXMLParsingDivide(String xmlDirPath, List<String> xmlIDs, int numThread) {
-        // TODO 2: use ParserWorkers and divide tasks manually.
         List<Thread> threads = new ArrayList<>(numThread);
 
         for (int i = 0; i < numThread; i++) {

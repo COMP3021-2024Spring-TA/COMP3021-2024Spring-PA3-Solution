@@ -14,9 +14,8 @@ public class QueryWorker implements Runnable {
     public Object[] args;
     public int mode;
     private Object result;
-
-    private Integer preds = 0;  // REMOVE
-    private List<QueryWorker> successors = new ArrayList<>(); // REMOVE
+    private Integer preds = 0;  // TODO: REMOVE for skeleton
+    private final List<QueryWorker> successors = new ArrayList<>(); // TODO: REMOVE for skeleton
 
     public QueryWorker(HashMap<String, ASTModule> id2ASTModules,
                        String queryID, String astID,
@@ -43,8 +42,13 @@ public class QueryWorker implements Runnable {
         }
     }
 
+    /**
+     * TODO: Implement `runSerial` to process current query command and store the results in `result`
+     *
+     * Hint1: you can invoke the methods in {@link QueryOnNode}, {@link QueryOnMethod} and {@link QueryOnClass}
+     * to achieve the query
+     */
     private void runSerial() {
-        // TODO: run specific query name, the implementation of query is given in jar package
         switch (queryName) {
             case "findFuncWithArgGtN": {
                 QueryOnNode query = new QueryOnNode(id2ASTModules);
