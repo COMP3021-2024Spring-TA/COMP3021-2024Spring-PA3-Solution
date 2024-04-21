@@ -55,10 +55,7 @@ public class ASTManagerEngine {
             System.out.println("  12: Find all the overriding methods in all classes.");
             System.out.println("  13: Given the name of a class, find all the methods that it possesses.");
             System.out.println("  14: Find all the classes that possesses main function.");
-        
-            // Bonus Task 15
-            System.out.println("  15: An API misuse bud detector. Return the list of function names that contain a bug.");
-
+            
             System.out.println("  16: Exit");
             System.out.println("----------------------------------------------------------------------");
             Scanner scan1 = new Scanner(System.in);
@@ -128,10 +125,6 @@ public class ASTManagerEngine {
                     }
                     case 14: {
                         userInterfaceFindClassesWithMain();
-                        break;
-                    }
-                    case 15: {
-                        bugDetector();
                         break;
                     }
                     default: {
@@ -410,16 +403,7 @@ public class ASTManagerEngine {
         System.out.println("Answer is " + queryOnClass.findClassesWithMain.get());
         
     }
-
-    /*
-     * Task 15: API misuse bug detector. Returns the list of function names that contain a bug.
-     */
-    public void bugDetector() {
-        String queryID = this.parseQueryASTID();
-        BugDetector budDetector = new BugDetector(id2ASTModules.get(queryID));
-        System.out.println("Answer is " + budDetector.detect.get());   
-    }
-
+    
 
     private String parseQueryASTID() {
         System.out.println("Please specify the AST ID to query (" + id2ASTModules.keySet() + ")");

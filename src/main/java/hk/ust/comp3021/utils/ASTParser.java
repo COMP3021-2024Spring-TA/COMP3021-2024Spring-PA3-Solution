@@ -34,6 +34,7 @@ public class ASTParser {
     }
 
     public void parse() {
+        System.out.println("[LOG FROM ASTParser] Parsing AST: " + this.xmlFilePath);
         // parse the XML Tree into rootXMLNode
         parse2XMLNode();
         if(isErr()) return;

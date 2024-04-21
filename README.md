@@ -31,7 +31,7 @@ The specifications of each task are shown below.
 
 #### Preface
 
-In PA2, we have mentioned 14 kinds of queries on AST, including 4 queries on AST node (`QueryOnNode`), 5 queries on methods (`QueryOnMethod`) and 5 queries on class (`QueryOnClass`). In PA3, we are still working on these 14 kinds of queries. To cope with multi-thread programming, we have slightly modified their implementations but functionalities are consistent, which will be detailed later.
+In PA2, we have mentioned 14 kinds of queries on AST, including 4 queries on AST node (`QueryOnNode`), 5 queries on methods (`QueryOnMethod`) and 5 queries on class (`QueryOnClass`). In PA3, we are still working on these 14 kinds of queries. To cope with multi-thread programming, we have slightly modified their implementations but functionalities are consistent, which will be detailed later. You can also refer to `ASTManagerEngine` to check their usage.
 
 The implementations of these 14 queries are given in `lib/ASTQuery.jar` package. You do not need to re-implement them. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat given implementations as black-box. 
 

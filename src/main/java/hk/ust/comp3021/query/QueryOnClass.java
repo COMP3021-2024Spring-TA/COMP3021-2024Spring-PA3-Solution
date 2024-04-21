@@ -18,6 +18,8 @@ public class QueryOnClass {
     }
     private static HashMap<String, Object> memo = new HashMap<>();
     private static Lock countLock = new ReentrantLock();
+    private static Lock orderLock = new ReentrantLock();
+    private static List<String> orderLists = new ArrayList<>();
 
     public static void clearCounts() {
         findSuperClassesCount = haveSuperClassCount = findOverridingMethodsCount = findAllMethodsCount = findClassesWithMainCount = 0;
@@ -26,6 +28,10 @@ public class QueryOnClass {
 
     public static List<Integer> getCounts() {
         return List.of(findSuperClassesCount, haveSuperClassCount, findOverridingMethodsCount, findAllMethodsCount, findClassesWithMainCount);
+    }
+
+    public static List<String> getOrderLists() {
+        return orderLists;
     }
 
     // Helper function
@@ -75,7 +81,12 @@ public class QueryOnClass {
     };
     public Function<String, List<String>> findSuperClasses = (className) -> {
         String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
-
+        System.out.println("[LOG FROM QueryOnClass] Querying findSuperClasses on AST " + this.module.getASTID());
+        
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         List<String> result = findSuperClassesImpl.apply(className);
         memo.put(key, result);
         return result;
@@ -107,7 +118,12 @@ public class QueryOnClass {
 
     public BiFunction<String, String, Boolean> haveSuperClass = (classA, classB) -> {
         String key = module.getASTID() +  "@" + "haveSuperClass" + "@" + classA + "@" +classB;
+        System.out.println("[LOG FROM QueryOnClass] Querying haveSuperClass on AST " + this.module.getASTID());
 
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         Boolean result = haveSuperClassImpl.apply(classA, classB);
         memo.put(key, result);
         return result;
@@ -167,8 +183,13 @@ public class QueryOnClass {
     };
 
     public Supplier<List<String>> findOverridingMethods = () -> {
-        String key = module.getASTID() +  "@" + "findOverridingMethods";
+        System.out.println("[LOG FROM QueryOnClass] Querying findOverridingMethods on AST " + this.module.getASTID());
 
+        String key = module.getASTID() +  "@" + "findOverridingMethods";
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         List<String> result = findOverridingMethodsImpl.get();
         memo.put(key, result);
         return result;
@@ -187,6 +208,7 @@ public class QueryOnClass {
      */
     private static Integer findAllMethodsCount = 0;
     public Function<String, List<String>> findAllMethodsImpl = (className) -> {
+        
         String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
         if(memo.containsKey(key)) {
             return (List<String>) memo.get(key);
@@ -203,7 +225,11 @@ public class QueryOnClass {
 
     public Function<String, List<String>> findAllMethods = (className) -> {
         String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
-
+        System.out.println("[LOG FROM QueryOnClass] Querying findAllMethods on AST " + this.module.getASTID());
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         List<String> result = findAllMethodsImpl.apply(className);
         memo.put(key, result);
         return result;
@@ -226,7 +252,6 @@ public class QueryOnClass {
         findClassesWithMainCount += 1;
         countLock.unlock();
         List<String> results = new ArrayList<>();
-        System.out.println("AST ID " + module.getASTID() + " " + module);
         module.filter(node -> node instanceof ClassDefStmt)
                 .forEach(clazz -> {
                     String className = ((ClassDefStmt) clazz).getName();
@@ -240,6 +265,10 @@ public class QueryOnClass {
 
     public Supplier<List<String>> findClassesWithMain = () -> {
         String key = module.getASTID() +  "@" + "findClassesWithMain";
+        System.out.println("[LOG FROM QueryOnClass] Querying findClassesWithMain on AST " + this.module.getASTID());
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
 
         List<String> result = findClassesWithMainImpl.get();
         memo.put(key, result);

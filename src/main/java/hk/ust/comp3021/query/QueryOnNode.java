@@ -6,6 +6,8 @@ import hk.ust.comp3021.stmt.*;
 import hk.ust.comp3021.utils.*;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.*;
 import java.util.stream.*;
 
@@ -13,6 +15,13 @@ public class QueryOnNode {
 
     private HashMap<String, ASTModule> id2ASTModules;
 
+    private static Lock orderLock = new ReentrantLock();
+    private static List<String> orderLists = new ArrayList<>();
+
+    public static List<String> getOrderLists() {
+        return orderLists;
+    }
+    
     public QueryOnNode(HashMap<String, ASTModule> id2ASTModules) {
         this.id2ASTModules = id2ASTModules;
     }
@@ -26,6 +35,13 @@ public class QueryOnNode {
      * Hints1: use {@link ASTElement#filter(Predicate)} method to implement the function
      */
     public Function<Integer, List<String>> findFuncWithArgGtN = paramN -> {
+        System.out.println("[LOG FROM QueryOnNode] Querying findFuncWithArgGtN on #AST " + this.id2ASTModules.size());
+        String key = id2ASTModules.size() +  "@" + "findFuncWithArgGtN" + "@" + paramN;
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
+        
         List<String> finalResult = new ArrayList<>();
         id2ASTModules.values().forEach(module -> {
             module.filter(node -> node instanceof FunctionDefStmt)
@@ -46,6 +62,12 @@ public class QueryOnNode {
      * Hints1: use {@link ASTElement#forEach(Consumer)} method to implement the function
      */
     public Supplier<HashMap<String, Integer>> calculateOp2Nums = () -> {
+        System.out.println("[LOG FROM QueryOnNode] Querying calculateOp2Nums on #AST " + this.id2ASTModules.size());
+        String key = id2ASTModules.size() +  "@" + "calculateOp2Nums";
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         HashMap<String, Integer> op2Num = new HashMap<>();
 
         Consumer<ASTElement> binOp = node -> {
@@ -94,6 +116,12 @@ public class QueryOnNode {
      * Hints2: if astID is invalid, return empty map
      */
     public Function<String, Map<String, Long>> calculateNode2Nums = astID -> {
+        System.out.println("[LOG FROM QueryOnNode] Querying calculateNode2Nums on #AST " + this.id2ASTModules.size());
+        String logKey = id2ASTModules.size() +  "@" + "calculateNode2Nums" + "@" + astID;
+        orderLock.lock();
+        orderLists.add(logKey);
+        orderLock.unlock();
+        
         Map<String, Long> node2Nums = new HashMap<>();
         if (!astID.equals("-1") && id2ASTModules.containsKey(astID)) {
             id2ASTModules.get(astID)
@@ -118,6 +146,12 @@ public class QueryOnNode {
      * Hint2: note that `countChildren` method is removed, please do not use this method
      */
     public Supplier<List<Map.Entry<String, Integer>>> processNodeFreq = () -> {
+        System.out.println("[LOG FROM QueryOnNode] Querying processNodeFreq on #AST " + this.id2ASTModules.size());
+        String key = id2ASTModules.size() +  "@" + "processNodeFreq";
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         HashMap<String, Integer> funcName2NodeNum = new HashMap<>();
 
         id2ASTModules.values().forEach(module -> {
