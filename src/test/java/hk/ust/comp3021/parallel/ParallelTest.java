@@ -16,6 +16,7 @@ import hk.ust.comp3021.utils.TestKind;
 
 public class ParallelTest {
 
+    @SuppressWarnings("unchecked")
     public void checkResults(List<Object> expecteds, List<Object> actuals, List<Object[]> commands) {
         for (int i = 0; i < expecteds.size(); i++) {
             Object expected = expecteds.get(i);

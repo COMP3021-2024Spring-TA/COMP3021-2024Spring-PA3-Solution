@@ -54,6 +54,8 @@ public class QueryOnClass {
      */
 
     private static Integer findSuperClassesCount = 0;
+
+    @SuppressWarnings("unchecked")
     private Function<String, List<String>> findSuperClassesImpl = (className) -> {
         String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
         if(memo.containsKey(key)) {
@@ -157,6 +159,8 @@ public class QueryOnClass {
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
     private static Integer findOverridingMethodsCount = 0;
+
+    @SuppressWarnings("unchecked")
     public Supplier<List<String>> findOverridingMethodsImpl = () -> {
         String key = module.getASTID() +  "@" + "findOverridingMethods";
         if(memo.containsKey(key)) {
@@ -207,6 +211,8 @@ public class QueryOnClass {
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
     private static Integer findAllMethodsCount = 0;
+    
+    @SuppressWarnings("unchecked")
     public Function<String, List<String>> findAllMethodsImpl = (className) -> {
         
         String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
@@ -243,6 +249,8 @@ public class QueryOnClass {
      * Hint1: You can reuse the results of {@link QueryOnClass#findAllMethods}
      */
     private static Integer findClassesWithMainCount = 0;
+
+    @SuppressWarnings("unchecked")
     public Supplier<List<String>> findClassesWithMainImpl = () -> {
         String key = module.getASTID() +  "@" + "findClassesWithMain";
         if(memo.containsKey(key)) {
