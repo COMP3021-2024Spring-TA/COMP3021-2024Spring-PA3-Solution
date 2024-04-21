@@ -13,13 +13,14 @@ public class QueryWorker implements Runnable {
     public String queryName;
     public Object[] args;
     public int mode;
-
     private Object result;
 
     private Integer preds = 0;  // REMOVE
     private List<QueryWorker> successors = new ArrayList<>(); // REMOVE
 
-    public QueryWorker(HashMap<String, ASTModule> id2ASTModules, String queryID, String astID, String queryName, Object[] args, int mode) {
+    public QueryWorker(HashMap<String, ASTModule> id2ASTModules,
+                       String queryID, String astID,
+                       String queryName, Object[] args, int mode) {
         this.id2ASTModules = id2ASTModules;
         this.queryID = queryID;
         this.astID = astID;
@@ -117,9 +118,7 @@ public class QueryWorker implements Runnable {
                 this.result = query.findClassesWithMain.get();
                 break;
             }
-
         }
-
     }
 
     private void runParallel() {
@@ -127,16 +126,14 @@ public class QueryWorker implements Runnable {
         switch (queryName) {
             case "calculateOp2Nums": {
                 HashMap<String, HashMap<String, Integer>> id2PartialResults = new HashMap<>();
-                List<Thread> subThreads = new ArrayList<Thread>();
+                List<Thread> subThreads = new ArrayList<>();
                 for (String id : id2ASTModules.keySet()) {
                     HashMap<String, ASTModule> partialInput = new HashMap<>();
                     partialInput.put(id, id2ASTModules.get(id));
                     Thread subThread = new Thread(() -> {
                         QueryOnNode query = new QueryOnNode(partialInput);
                         HashMap<String, Integer> partialResult = query.calculateOp2Nums.get();
-
                         id2PartialResults.put(id, partialResult);
-
                     });
                     subThreads.add(subThread);
                     subThread.start();
@@ -170,7 +167,6 @@ public class QueryWorker implements Runnable {
                     Thread subThread = new Thread(() -> {
                         QueryOnNode query = new QueryOnNode(partialInput);
                         List<Entry<String, Integer>> partialResult = query.processNodeFreq.get();
-
                         id2PartialResults.put(id, partialResult);
 
                     });
@@ -244,7 +240,7 @@ public class QueryWorker implements Runnable {
 
 
     public void addPred() {  // REMOVE
-        this.preds += 1; 
+        this.preds += 1;
     }
 
     public void addSucc(QueryWorker o) { // REMOVE
@@ -257,18 +253,18 @@ public class QueryWorker implements Runnable {
 
     private void runParallelWithOrder() {
         // TODO: determine the order of query on class to reduce redundant execution
-        while(true) {
+        while (true) {
             // System.out.println("Waiting..." + this.queryName + this.preds);
-            if(preds <= 0) {
+            if (preds <= 0) {
                 break;
             }
         }
 
         runParallel();
-        for(QueryWorker succ : this.successors) {
+        for (QueryWorker succ : this.successors) {
             System.out.println(this.queryID + " notify " + succ.queryID);
             succ.finishPred();
-        } 
+        }
 
     }
 

@@ -124,23 +124,28 @@ public class RapidASTManagerEngine {
 
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
         // TODO 6: parallel execution with order
-        for(QueryWorker worker : workers) {
-            for(QueryWorker worker2: workers) {
-                if (worker.queryID == worker2.queryID) continue;
-                if (worker.astID != worker2.astID) continue;
-                boolean runsBefore = false;
-                if(worker2.queryName == "findClassesWithMain") {
-                    if(worker.queryName == "findAllMethods" || worker.queryName == "findSuperClasses") {
+        for (QueryWorker worker : workers) {
+            for (QueryWorker worker2 : workers) {
+                if (worker.queryID.equals(worker2.queryID))
+                    continue;
+                if (worker.astID.equals(worker2.astID))
+                    continue;
+                boolean runsBefore = false; // whether worker runs before worker2
+                if (worker2.queryName.equals("findClassesWithMain")) {
+                    if (worker.queryName.equals("findAllMethods")
+                            || worker.queryName.equals("findSuperClasses")) {
                         runsBefore = true;
                     }
-                } else if(worker.queryName == "findSuperClasses") {
-                    if(worker2.queryName == "haveSuperClass" || worker2.queryName == "findOverridingMethods" || worker2.queryName == "findAllMethods") {
-                        if(worker.args[0] == worker2.args[0]) {
+                } else if (worker.queryName.equals("findSuperClasses")) {
+                    if (worker2.queryName.equals("haveSuperClass")
+                            || worker2.queryName.equals("findOverridingMethods")
+                            || worker2.queryName.equals("findAllMethods")) {
+                        if (worker.args[0] == worker2.args[0]) {
                             runsBefore = true;
                         }
                     }
                 }
-                if(runsBefore) {
+                if (runsBefore) {
                     worker2.addPred();
                     worker.addSucc(worker2);
                 }
@@ -156,7 +161,8 @@ public class RapidASTManagerEngine {
 
         for (Object[] command : commands) {
             if (command[2].equals("processXMLParsing")) {
-                ParserWorker parser = new ParserWorker((String) command[1], (String) ((Object[]) command[3])[0], id2ASTModules);
+                ParserWorker parser = new ParserWorker((String) command[1], 
+                        (String) ((Object[]) command[3])[0], id2ASTModules);
                 parsers.add(parser);
             } else {
                 QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0],
@@ -222,7 +228,8 @@ public class RapidASTManagerEngine {
 
         for (Object[] command : commands) {
             if (command[2].equals("processXMLParsing")) {
-                ParserWorker parser = new ParserWorker((String) command[1], (String) ((Object[]) command[3])[0], id2ASTModules);
+                ParserWorker parser = new ParserWorker((String) command[1], 
+                        (String) ((Object[]) command[3])[0], id2ASTModules);
                 parsers.add(parser);
             } else {
                 QueryWorker worker = new QueryWorker(id2ASTModules, (String) command[0],

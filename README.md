@@ -81,12 +81,21 @@ public class QueryWorker implements Runnable {
     }
 }
 ```
-1. `0` means sequential execution. You need to implemented `runSerial`.
+1. `0` means sequential execution. You need to implemente `runSerial`.
 2. `1` means
 3. mode `2` enhances mode `1` with the goal of reducing redundant tree traversal when querying class information.
-   As you can observe, the one query on classes could rely on the result of another. For instance, `find Overriding Methods` depends on the class inheritance hierarchy computed by `findSuperClasses`. Please consider the query dependence relation based on your understanding and implement `runParallelWithOrder` with less tree traversals as possible. We would grade your code based on the times of traversal.
+   As you can observe, the one query on classes could rely on the result of another. For instance, `find Overriding Methods` depend on the class inheritance hierarchy computed by `findSuperClasses`. Please consider the query dependence relation based on your understanding and implement `runParallelWithOrder` with as less tree traversals as possible. We would grade your code based on the times of traversal.
 
-Once `run` method of `QueryWorker` is finished, please finish the `processCommands` method of `RapidASTManagerEngine`. The method create a worker based on the given commands and schedule these workers based on the execution modes. 
+
+For mode 2, the dependences among the given five classes are shown below:
+```
+haveSuperClass invokes findSuperClasses
+findOverridingMethods invokes findSuperClasses
+findAllMethods invokes findSuperClasses
+findClassesWithMain invokes findAllMethods
+```
+
+Once `run` method of `QueryWorker` is finished, please finish the `processCommands` method of `RapidASTManagerEngine`. The method creates a worker based on the given commands and schedules these workers based on the execution modes. 
 
 ```Java
 public List<Object> processCommands(List<Object[]> commands, int executionMode) {

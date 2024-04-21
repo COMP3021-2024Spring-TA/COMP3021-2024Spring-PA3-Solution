@@ -9,8 +9,7 @@ import hk.ust.comp3021.utils.ASTParser;
 public class ParserWorker implements Runnable {
     private String xmlID;
     private String xmlDirPath;
-
-    private HashMap<String, ASTModule> id2ASTModules;
+    private final HashMap<String, ASTModule> id2ASTModules;
 
     public ParserWorker(String xmlID, String xmlDirPath, HashMap<String, ASTModule> id2ASTModules) {
         this.xmlID = xmlID;

@@ -51,18 +51,19 @@ public class QueryOnClass {
         countLock.lock();
         findSuperClassesCount += 1;
         countLock.unlock();
-        
+
         List<String> results = new ArrayList<>();
         if (findClassInModule.apply(className, module).isPresent()) {
             ClassDefStmt clazz = (ClassDefStmt) findClassInModule.apply(className, module).get();
-            clazz.getChildren().forEach(node -> {
-                if (node instanceof NameExpr) {
-                    String superClass = ((NameExpr) node).getId();
-                    results.add(superClass);
-                    List<String> recSuperClasses = this.findSuperClasses.apply(superClass);
-                    results.addAll(recSuperClasses);
-                }
-            });
+            clazz.getBases().forEach(base -> base.forEach(node -> {
+                        if (node instanceof NameExpr) {
+                            String superClass = ((NameExpr) node).getId();
+                            results.add(superClass);
+                            List<String> recSuperClasses = this.findSuperClasses.apply(superClass);
+                            results.addAll(recSuperClasses);
+                        }
+                    })
+            );
         }
         return results;
     };
@@ -88,14 +89,16 @@ public class QueryOnClass {
 
 
     // Helper function
-    private Function<String, List<String>> findDirectMethods = (classA) -> {
-        List<String> results = new ArrayList<String>();
-        ClassDefStmt clazz = (ClassDefStmt) findClassInModule.apply(classA, module).get();
-        clazz.getChildren().forEach(node -> {
-            if (node instanceof FunctionDefStmt) {
-                results.add(((FunctionDefStmt) node).getName());
-            }
-        });
+    private final Function<String, List<String>> findDirectMethods = (classA) -> {
+        List<String> results = new ArrayList<>();
+        if (findClassInModule.apply(classA, module).isPresent()) {
+            ClassDefStmt clazz = (ClassDefStmt) findClassInModule.apply(classA, module).get();
+            clazz.forEach(node -> {
+                if (node instanceof FunctionDefStmt) {
+                    results.add(((FunctionDefStmt) node).getName());
+                }
+            });
+        }
         return results;
     };
 
@@ -115,11 +118,11 @@ public class QueryOnClass {
         countLock.lock();
         findOverridingMethodsCount += 1;
         countLock.unlock();
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
             String className = ((ClassDefStmt) clazz).getName();
             List<String> directMethods = findDirectMethods.apply(className);
-            List<String> superMethods = new ArrayList<String>();
+            List<String> superMethods = new ArrayList<>();
             findSuperClasses.apply(className).forEach(superClassName -> {
                 superMethods.addAll(findDirectMethods.apply(superClassName));
             });
@@ -148,12 +151,11 @@ public class QueryOnClass {
         countLock.lock();
         findAllMethodsCount += 1;
         countLock.unlock();
-        HashSet<String> results = new HashSet<String>();
-        results.addAll(findDirectMethods.apply(className));
+        HashSet<String> results = new HashSet<>(findDirectMethods.apply(className));
         findSuperClasses.apply(className).forEach(superClass -> {
             results.addAll(findDirectMethods.apply(superClass));
         });
-        return new ArrayList<String>(results);
+        return new ArrayList<>(results);
     };
 
     /**
@@ -168,18 +170,17 @@ public class QueryOnClass {
         countLock.lock();
         findClassesWithMainCount += 1;
         countLock.unlock();
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList<>();
         System.out.println("AST ID " + module.getASTID() + " " + module);
-        module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
-            String className = ((ClassDefStmt) clazz).getName();
-            List<String> allMethods = findAllMethods.apply(className);
-            if (allMethods.contains("main")) {
-                results.add(className);
-            }
-        });
+        module.filter(node -> node instanceof ClassDefStmt)
+                .forEach(clazz -> {
+                    String className = ((ClassDefStmt) clazz).getName();
+                    List<String> allMethods = findAllMethods.apply(className);
+                    if (allMethods.contains("main")) {
+                        results.add(className);
+                    }
+                });
         return results;
     };
-
-
 }
 

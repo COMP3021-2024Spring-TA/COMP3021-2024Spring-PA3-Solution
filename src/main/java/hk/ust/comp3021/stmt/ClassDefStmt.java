@@ -42,6 +42,10 @@ public class ClassDefStmt extends ASTStmt {
         }
     }
 
+    public ArrayList<ASTExpr> getBases() {
+        return bases;
+    }
+
     @Override
     public ArrayList<ASTElement> getChildren() {
         ArrayList<ASTElement> children = new ArrayList<>();
