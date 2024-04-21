@@ -1,17 +1,8 @@
 package hk.ust.comp3021;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-
-import hk.ust.comp3021.parallel.ParserWorker;
-import hk.ust.comp3021.parallel.QueryWorker;
-import hk.ust.comp3021.query.*;
+import hk.ust.comp3021.parallel.*;
 import hk.ust.comp3021.utils.*;
-
-import java.io.*;
-import java.nio.file.Paths;
+import java.util.concurrent.*;
 import java.util.*;
 
 

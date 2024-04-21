@@ -36,6 +36,7 @@ buildscript {
 }
 
 dependencies {
+    implementation(files("lib/ASTQuery.jar"))
     testImplementation("org.jetbrains:annotations:23.0.0")
     compileOnly("org.jetbrains:annotations:23.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")

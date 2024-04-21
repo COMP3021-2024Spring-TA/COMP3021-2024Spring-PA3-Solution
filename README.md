@@ -33,9 +33,9 @@ The specifications of each task are shown below.
 
 In PA2, we have mentioned 14 kinds of queries on AST, including 4 queries on AST node (`QueryOnNode`), 5 queries on methods (`QueryOnMethod`) and 5 queries on class (`QueryOnClass`). In PA3, we are still working on these 14 kinds of queries. To cope with multi-thread programming, we have slightly modified their implementations but functionalities are consistent, which will be detailed later.
 
-The implementations of these 14 queries are given in the form of `jar` package. You do not need to re-implement them. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat given implementations as black-box. 
+The implementations of these 14 queries are given in `lib/ASTQuery.jar` package. You do not need to re-implement them. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat given implementations as black-box. 
 
-In PA3, we establish a new parallel framework `RapidASTManagerEngine` to replace the original `ASTManagerEngine`. The class has two objects, `id2ASTModules` organizing the mapping between the ID to the corresponding parsed AST and `allResults` stores the query results you need to generate in parallel.
+In PA3, we establish a new parallel framework `RapidASTManagerEngine` to replace the original `ASTManagerEngine`. The class has two fields, `id2ASTModules` organizes the mapping between the ID to the corresponding parsed ASTs and `allResults` stores the query results you need to produce in parallel.
 
 Note that you can only use `synchronized`, `notifyAll`, `wait`, `Thread`, `semaphore`, `ReentrantLock` and `ExecutorService` to synchronize the threads in PA3.
 
@@ -43,7 +43,7 @@ Note that you can only use `synchronized`, `notifyAll`, `wait`, `Thread`, `semap
 
 In task 1, to support parallel import of XML files, we use the class `ParserWorkers` under the directory `parallel` to organize essential information for XML loading, including the ID of AST to be loaded `xmlID`, the absolute path of XML file directory `xmlDirPath`, and the mapping to store the loaded AST `id2ASTModules`.
 
-You can notice `ParserWorker` is a subclass of interface `Runnable`. Please implement the method `run` of `Runnable` interface to load AST of the given ID and store the results to `id2ASTModules`. You can invoke `ASTParser.parser` but please caution on the concurrent writing to the global mapping. 
+You can notice `ParserWorker` is a subclass of interface `Runnable`. Please implement the method `run` of `Runnable` interface to load AST of the given ID and store the results to `id2ASTModules`. You can invoke `ASTParser.parser` but please caution on the concurrent writing to the global mapping `id2ASTModules`. 
 
 ```Java
 public class ParserWorker implements Runnable {
@@ -54,25 +54,25 @@ public class ParserWorker implements Runnable {
 }
 ```
 
-After finishing the `ParserWorder`, please implement `processXMLParsingPool` and `processXMLParsingDivide` methods of `RapidASTManagerEngine` to launch specific numbers of threads. You must ensure that all the threads have equal access to the shared data structures.
+After finishing the `ParserWorder`, please implement `processXMLParsingPool` and `processXMLParsingDivide` methods of `RapidASTManagerEngine` to launch specific numbers of threads to load XML files. You must ensure that all the threads have equal access to the shared data structures.
 
-For `processXMLParsingPool`, you can manage threads with a threading pool using `ExecutorService`. For `processXMLParsingDivide`, you can only use `Thread` and need to manually distribute the XML files to be loaded for each thread. Try to use all the threads effectively to perform the search operations with high performance. 
+For `processXMLParsingPool`, you can manage threads with a threading pool using package `ExecutorService`. For `processXMLParsingDivide`, you can only use `Thread` and need to manually distribute the XML files to be loaded for each thread. Try to use all the threads effectively to perform the search operations with high performance. 
 
 
 #### Task 2: Support Customized Parallelization on Query Processing
 
-In the previous PAs, each time you need to process on command once a time for three kinds of queries, i.e., `queryOnNode`, `queryOnMethod` and `queryOnClass`. But in task 2, you are requested to process a stream of queries in parallel.
+In the previous PAs, each time you need to process on command once a time for three kinds of queries, i.e., `queryOnNode`, `queryOnMethod` and `queryOnClass`. In task 2, you are requested to process a stream of queries in parallel.
 
-We use `QueryWorker` under `parallel` to universally manage the different commands and their outputs. The meaning of each field of `QueryWorker` is outlined below.
+We use `QueryWorker` under `parallel` to universally manage the different commands and their inputs/outputs. The meaning of each field of `QueryWorker` is outlined below.
 - `id2ASTModules`: global mapping managing all loaded AST so far
 - `queryID`: the index of the current query inside all given queries
 - `astID`: the ID of AST to be queried
 - `queryName`: the name of the query, including the 14 queries you wrote in PA2, from `findFuncWithArgGtN` to `findClassesWithMain`.
 - `args`: the inputs of query, its size depends on the specific query to be conducted, for instance, `answerIfACalledB` query has two inputs.
-- `result`: universal structure to store the query results, which depends on the specific query to be conducted, for instance, `answerIfACalledB` returns boolean data.
+- `result`: universal structure to store the query results, which depends on the specific query to be conducted, for instance, `answerIfACalledB` returns boolean value.
 - `mode`: query mode, which will be elaborated on later.
 
-To perceive the efficiency benefit from parallelism straightforwardly, you are requested to implement 3 query modes in total. As you can see, the `run` methods check the current query mode and invoke corresponding methods. 
+To perceive the efficiency benefit from parallelism straightforwardly, you are requested to implement 3 query modes in task 2. As you can see, the `run` methods check the current query mode and invoke corresponding methods. 
 
 ```Java
 public class QueryWorker implements Runnable {
@@ -88,13 +88,17 @@ public class QueryWorker implements Runnable {
     }
 }
 ```
-**Mode `0` Sequential Execution**. You need to implement `runSerial` to achieve specific query `queryName`. For queries on methods and classes, the results are computed on AST `astID` while for queries on nodes, the results are computed based on all ASTs inside `id2ASTModules`. You need to first parse `args` to prepare correct arguments, then invoke the corresponding query function based on the `queryName`. Finally, remember to store the query results in `result`. Later mode 0 will be invoked sequentially on a list of queries.
+**Mode `0` Sequential Execution**. You need to implement `runSerial` to achieve specific query `queryName`. Later mode 0 will be invoked sequentially on a list of queries.
 
-**Mode `1` Parallel Execution**. You need to implement `runParallel` to achieve specific queries in parallel. Later mode 1 will be invoked by multiple threads on a list of queries. Note that except for `queryOnNode`, all remaining queries are already performed on the single AST. Thus, the difference between mode `0` and mode `1` is you need to distribute the `queryOnNode` task to multiple threads where each handles one AST, then you assemble their results to form the final one. Here, you must invoke the original methods in `queryOnNode` but you can modify their inputs to make each thread only handle one AST.
+For queries on methods and classes, the results are computed on AST `astID` while for queries on nodes, the results are computed based on all ASTs inside `id2ASTModules`. You need to first parse `args` to prepare correct arguments, then invoke the corresponding query function based on the `queryName`. Finally, remember to store the query results in `result`.
 
-**Mode `2` Optimized Parallel Execution. **You need to implement `runParallelWithOrder` to achieve specific queries in parallel but now, the execution orders of queries are not random. Specifically, as you can observe, the query on class could rely on the result of another. For instance, `findOverridingMethods` depends on the class inheritance hierarchy computed by `findSuperClasses`. 
+**Mode `1` Parallel Execution**. You need to implement `runParallel` to achieve specific queries in parallel. Later mode 1 will be invoked by multiple threads on a list of queries. 
 
-In given implementations of query on classes, the calling dependence is shown below. Please consider implementing `runParallelWithOrder` to prevent repeat computations.
+Note that except for `queryOnNode`, all remaining queries are already performed on the single AST. Thus, the difference between mode `0` and mode `1` is that you need to distribute the `queryOnNode` task to multiple threads where each thread handles one AST, then you assemble their results to form the final one. Here, you must invoke the original methods in `queryOnNode` but you can modify their inputs to make each thread only handle one AST.
+
+**Mode `2` Optimized Parallel Execution. **You need to implement `runParallelWithOrder` to achieve specific queries in parallel, and the execution orders of queries are not random anymore. As you have observed, one query on class could rely on the result of another query on class. For instance, `findOverridingMethods` depends on the class inheritance hierarchy computed by `findSuperClasses`. 
+
+In given implementations of query on classes, the calling dependence is shown below. Please consider implementing `runParallelWithOrder` in a way that queries are well-ordered so that to prevent repeat computations.
 
 ```
 haveSuperClass invokes findSuperClasses
@@ -103,7 +107,7 @@ findAllMethods invokes findSuperClasses
 findClassesWithMain invokes findAllMethods
 ```
 
-We have designed an internal static field inside `queryOnClass` to memorize all query results computed so far. You only need to consider the execution order and how to synchronize threads. We would keep the track of the invocation times of each method in `queryOnClass`.
+We have designed an internal static field inside `queryOnClass` to memorize all query results computed so far. You only need to consider the execution order and how to synchronize threads. We would keep the track of the invocation times of each method in `queryOnClass` to test the correctness of your code.
 
 Once all methods of `QueryWorker` are finished, please finish the `processCommands` method of `RapidASTManagerEngine`. Specifically, the method transforms the given query commands into a list of `QueryWorker` objects and schedules these workers based on the execution modes. 
 
@@ -132,7 +136,9 @@ Based on the `exeutionMode`, you also need to implement the following three meth
 #### Task 3: Interleaved XML Import and Query
 
 In tasks 1 and 2, the XML import and query are handled separately. In task 3, you will receive a list of commands containing both XML import and query. Note that for each AST, its loading commands are not guaranteed to be issued earlier than its query.
-You should correctly schedule these commands to prevent exceptions. For instance, for the following example commands, command 3 should not be executed before command 1. More importantly, if there are no corresponding AST loading commands for a specific query, the query should be skipped.
+You should correctly schedule these commands to prevent AST not found exceptions. For instance, for the following example command list, command 3 should not be executed before command 1. Besides, the order of queries should be consistent to that in given commands.
+
+More importantly, if there are no corresponding AST loading commands for a specific query, the query should be skipped.
 
 ```Java
 // command id, ast id, command name, command args

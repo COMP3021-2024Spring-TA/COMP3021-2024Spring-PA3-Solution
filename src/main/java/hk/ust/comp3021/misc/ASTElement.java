@@ -1,6 +1,5 @@
 package hk.ust.comp3021.misc;
 
-import hk.ust.comp3021.query.QueryOnNode;
 import hk.ust.comp3021.utils.*;
 import java.util.*;
 import java.util.function.*;
