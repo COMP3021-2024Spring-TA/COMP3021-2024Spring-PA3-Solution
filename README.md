@@ -6,29 +6,32 @@
 
 ### **Grading System**
 
-PA3 aims to practice the multithreading and parallel programming. 
-Specifically, the goal of PA3 is to get you familiar with work dividing to speed up and work ordering based on the degree of their overlaps to avoid redundant computation.  
-**ASTManager** should be enhanced to support the following additional functionalities:
+PA3 aims to practice multithreading and parallel programming. Specifically, the goal of PA3 is to familiarize you with dividing and scheduling work to speed up and avoid redundant computation of AST loading and query. **ASTManager** should be enhanced to support the following additional functionalities:
 
 - Task 1: Parallel importing of XML files
 - Task 2: Efficient Query Processing
 - Task 3: Mixture XML Importing and Query
+- Bonus Task: 
 
 Similar to PA1 and PA2, each input is an XML file that represents a Python AST. The XML files used to test logics of PA1 are resided in `resources/pythonxmlPA1` while those for ten code patterns are located in `resources/pythonxml`. Before task specification, we first explain the grading policy as follows for your reference so that you will get it.
 
-| Item                                            | Ratio | Notes                                                                    |
-|-------------------------------------------------| ----- |--------------------------------------------------------------------------|
-| Keeping your GitHub repository private          | 5%    | You must keep your repository **priavte** at all times.                  |
-| Having at least three commits on different days | 5%    | You should commit three times during different days in your repository   |
+| Item                                            | Ratio | Notes                                                        |
+| ----------------------------------------------- | ----- | ------------------------------------------------------------ |
+| Keeping your GitHub repository private          | 5%    | You must keep your repository **priavte** at all times.      |
+| Having at least three commits on different days | 5%    | You should commit three times during different days in your repository |
 | Code style                                      | 10%   | You get 10% by default, and every 5 warnings from CheckStyle deducts 1%. |
-| Public test cases (Task 1 + Task 2 + Task 3)    | 30%   | (# of passing tests / # of provided tests) * 30%                         |
-| Hidden test cases (Task 1 + Task 2 + Task 3)    | 50%   | (# of passing tests / # of provided tests) * 50%                         |
+| Public test cases (Task 1-3 + Bonus Task)       | 30%   | (# of passing tests / # of provided tests) * 30%             |
+| Hidden test cases (Task 1-3 + Bonus Task)       | 50%   | (# of passing tests / # of provided tests) * 50%             |
 
-Note that we would check both the correctness and the performance of your implementation. Without finishing the task within given time, you will not get full marks even with correct results.
+Note that we would check 1) the correctness, 2) the performance, as well as 3) the number of active threads for your implementation. Without finishing the task within given time or if the number of threads is not correct, you will not get full marks even with correct results.
 
 ### Task Description
 
-The specifications of each task are shown below. We have released the implementations of core functionalities in the form of `jar` package, i.e., XML loading and querying mentioned in PA1 and PA2. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat the given implementations as blackboxes. 
+The specifications of each task are shown below. 
+
+In PA2, we have mentioned 14 kinds of queries on AST, including 4 queries on AST node (`QueryOnNode`), 5 queries on method (`QueryOnMethod`) and 5 queries on class (`QueryOnClass`). In PA3, we are still working on these 14 kinds of queries. To cope with multi-thread programming, we have slightly modified the signatures of these methods, which will be detailed later.
+
+The implementations of these 14 queries are given in the form of `jar` package. You do not need to re-implement them. The focus of PA3 is to build a framework to parallelize existing functionalities, thus you can treat the given implementations as blackboxes. 
 
 In PA3, we establish a new parallel framework `RapidASTManagerEngine` under directory `parallel` to replace the original `ASTManagerEngine`.
 The class has two objects, `id2ASTModules` organizing the mapping between the ID to corresponding parsed AST and `allResults` stores the results of a bunch of query you need to process in parallel.
@@ -144,17 +147,18 @@ We use the JUnit test to verify the functionalities of all methods you implement
 
 ### How to TEST
 
-Public test cases are released in `src/test/java/hk.ust.comp3021/query` and `src/test/java/hk.ust.comp3021/misc`. Please try to test your code with `./gradlew test` before submission to ensure your implementation can pass all public test cases.
+We use JUnit test to validate the correctness of individual methods that you need to implement. Public test cases are released in `src/test/java/hk.ust.comp3021/parallel`. The mapping between public test cases and methods to be tested is shown below. Please try to test your code with `./gradlew test` before submission to ensure your implementation can pass all public test cases.
 
-We use JUnit test to validate the correctness of individual methods that you need to implement. The mapping between public test cases and methods to be tested is shown below.
-
-| Test Case           | Target Method                                   |
-|---------------------|-------------------------------------------------|
-| `ASTElementTest`    | Three collectors for AST in `ASTElement`        |
-| `QueryOnNodeTest`   | Methods in `QueryOnNode`                        |
-| `QueryOnMethodTest` | Methods in `QueryOnMethod`                      |
-| `QueryOnClassTest`  | Methods in `QueryOnClass`                       |
-| `BugDetectorTest`   | Methods in `BugDetector` (For Bonus Task Only)  |
+| Test Case                         | Target Method                                                |
+| --------------------------------- | ------------------------------------------------------------ |
+| `testParallelLoadingPool`         | `processXMLParsingPool` in Task 1                            |
+| `testParallelLoadingDivide`       | `processXMLParsingDivide` in Task 1                          |
+| `testSerialExecution`             | `processCommands` with mode 0 (`executeCommandsSerial`) in Task 2 |
+| `testParallelExecution`           | `processCommands` with mode 1 (`executeCommandsParallel`) in Task 2 |
+| `testParallelExecutionWithOrder`  | `processCommands` with mode 2 (`executeCommandsParallelWithOrder`) in Task 2 |
+| `testInterleavedImportQuery`      | `processCommandsInterLeaved` in Task 3                       |
+| `testInterleavedImportQueryTwo`   | `processCommandsInterLeavedTwoThread` in Task 3              |
+| `testInterleavedImportQueryBonus` | `processCommandsInterLeavedFixedThread` in Task 3 (Bonus Task Only) |
 
 You can fix the problem of your implementation based on the failed test cases.
 

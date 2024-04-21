@@ -124,6 +124,34 @@ public class QueryWorker implements Runnable {
     private void runParallel() {
         // TODO: parallel the query on node 
         switch (queryName) {
+            case "findFuncWithArgGtN": {
+                HashMap<String, List<String>> id2PartialResults = new HashMap<>();
+                List<Thread> subThreads = new ArrayList<>();
+                for (String id : id2ASTModules.keySet()) {
+                    HashMap<String, ASTModule> partialInput = new HashMap<>();
+                    partialInput.put(id, id2ASTModules.get(id));
+                    Thread subThread = new Thread(() -> {
+                        QueryOnNode query = new QueryOnNode(partialInput);
+                        List<String> partialResult = query.findFuncWithArgGtN.apply((Integer) args[0]);
+                        id2PartialResults.put(id, partialResult);
+                    });
+                    subThreads.add(subThread);
+                    subThread.start();
+                }
+                try {
+                    for (Thread subThread: subThreads) {
+                        subThread.join();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                List<String> result = new ArrayList<>();
+                for (List<String> partialRes: id2PartialResults.values()) {
+                    result.addAll(partialRes);
+                }
+                this.result = result;
+                break;
+            }
             case "calculateOp2Nums": {
                 HashMap<String, HashMap<String, Integer>> id2PartialResults = new HashMap<>();
                 List<Thread> subThreads = new ArrayList<>();
