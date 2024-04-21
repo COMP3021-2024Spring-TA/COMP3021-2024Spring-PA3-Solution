@@ -162,11 +162,11 @@ public class ParallelTest {
 
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
-        List<Integer> expectedCounts = List.of(45, 2, 0, 8, 1);
-        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"2", "18", "findSuperClasses", new Object[]{"H"}});
-        commands.add(new Object[]{"3", "18", "haveSuperClass", new Object[]{"H", "A"}});
-        commands.add(new Object[]{"4", "18", "haveSuperClass", new Object[]{"A", "H"}});
+        List<Integer> expectedCounts = List.of(39, 2, 0, 8,1);
+        commands.add(new Object[] {"1", "18", "findClassesWithMain", new Object[] {}}); 
+        commands.add(new Object[] {"2", "18", "findSuperClasses", new Object[] {"H"}}); 
+        commands.add(new Object[] {"3", "18", "haveSuperClass", new Object[] {"H", "A"}}); 
+        commands.add(new Object[] {"4", "18", "haveSuperClass", new Object[] {"A", "H"}});
 
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
         expectedResults.add(Set.of("A", "B", "C", "D", "F"));

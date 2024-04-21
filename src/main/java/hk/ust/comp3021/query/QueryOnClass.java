@@ -16,11 +16,12 @@ public class QueryOnClass {
     public QueryOnClass(ASTModule module) {
         this.module = module;
     }
-
+    private static HashMap<String, Object> memo = new HashMap<>();
     private static Lock countLock = new ReentrantLock();
 
     public static void clearCounts() {
         findSuperClassesCount = haveSuperClassCount = findOverridingMethodsCount = findAllMethodsCount = findClassesWithMainCount = 0;
+        memo.clear();
     }
 
     public static List<Integer> getCounts() {
@@ -47,7 +48,12 @@ public class QueryOnClass {
      */
 
     private static Integer findSuperClassesCount = 0;
-    public Function<String, List<String>> findSuperClasses = (className) -> {
+    private Function<String, List<String>> findSuperClassesImpl = (className) -> {
+        String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
+        if(memo.containsKey(key)) {
+            return (List<String>) memo.get(key);
+        }
+
         countLock.lock();
         findSuperClassesCount += 1;
         countLock.unlock();
@@ -59,7 +65,7 @@ public class QueryOnClass {
                         if (node instanceof NameExpr) {
                             String superClass = ((NameExpr) node).getId();
                             results.add(superClass);
-                            List<String> recSuperClasses = this.findSuperClasses.apply(superClass);
+                            List<String> recSuperClasses = this.findSuperClassesImpl.apply(superClass);
                             results.addAll(recSuperClasses);
                         }
                     })
@@ -67,6 +73,14 @@ public class QueryOnClass {
         }
         return results;
     };
+    public Function<String, List<String>> findSuperClasses = (className) -> {
+        String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
+
+        List<String> result = findSuperClassesImpl.apply(className);
+        memo.put(key, result);
+        return result;
+    };
+
 
     /**
      * TODO Given class name `classA` and `classB` representing two classes A and B,
@@ -80,11 +94,24 @@ public class QueryOnClass {
      */
 
     private static Integer haveSuperClassCount = 0;
-    public BiFunction<String, String, Boolean> haveSuperClass = (classA, classB) -> {
+    public BiFunction<String, String, Boolean> haveSuperClassImpl = (classA, classB) -> {
+        String key = module.getASTID() +  "@" + "haveSuperClass" + "@" + classA + "@" +classB;
+        if(memo.containsKey(key)) {
+            return (Boolean) memo.get(key);
+        }
         countLock.lock();
         haveSuperClassCount += 1;
         countLock.unlock();
-        return findSuperClasses.apply(classA).contains(classB);
+        return findSuperClassesImpl.apply(classA).contains(classB);
+    };
+
+    public BiFunction<String, String, Boolean> haveSuperClass = (classA, classB) -> {
+        String key = module.getASTID() +  "@" + "haveSuperClass" + "@" + classA + "@" +classB;
+
+        Boolean result = haveSuperClassImpl.apply(classA, classB);
+        memo.put(key, result);
+        return result;
+
     };
 
 
@@ -114,7 +141,11 @@ public class QueryOnClass {
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
     private static Integer findOverridingMethodsCount = 0;
-    public Supplier<List<String>> findOverridingMethods = () -> {
+    public Supplier<List<String>> findOverridingMethodsImpl = () -> {
+        String key = module.getASTID() +  "@" + "findOverridingMethods";
+        if(memo.containsKey(key)) {
+            return (List<String>) memo.get(key);
+        }
         countLock.lock();
         findOverridingMethodsCount += 1;
         countLock.unlock();
@@ -123,7 +154,7 @@ public class QueryOnClass {
             String className = ((ClassDefStmt) clazz).getName();
             List<String> directMethods = findDirectMethods.apply(className);
             List<String> superMethods = new ArrayList<>();
-            findSuperClasses.apply(className).forEach(superClassName -> {
+            findSuperClassesImpl.apply(className).forEach(superClassName -> {
                 superMethods.addAll(findDirectMethods.apply(superClassName));
             });
             directMethods.forEach(methodName -> {
@@ -133,6 +164,14 @@ public class QueryOnClass {
             });
         });
         return results;
+    };
+
+    public Supplier<List<String>> findOverridingMethods = () -> {
+        String key = module.getASTID() +  "@" + "findOverridingMethods";
+
+        List<String> result = findOverridingMethodsImpl.get();
+        memo.put(key, result);
+        return result;
     };
 
     /**
@@ -147,15 +186,27 @@ public class QueryOnClass {
      * Hint2: you can reuse the results of {@link QueryOnClass#findSuperClasses}
      */
     private static Integer findAllMethodsCount = 0;
-    public Function<String, List<String>> findAllMethods = (className) -> {
+    public Function<String, List<String>> findAllMethodsImpl = (className) -> {
+        String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
+        if(memo.containsKey(key)) {
+            return (List<String>) memo.get(key);
+        }
         countLock.lock();
         findAllMethodsCount += 1;
         countLock.unlock();
         HashSet<String> results = new HashSet<>(findDirectMethods.apply(className));
-        findSuperClasses.apply(className).forEach(superClass -> {
+        findSuperClassesImpl.apply(className).forEach(superClass -> {
             results.addAll(findDirectMethods.apply(superClass));
         });
         return new ArrayList<>(results);
+    };
+
+    public Function<String, List<String>> findAllMethods = (className) -> {
+        String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
+
+        List<String> result = findAllMethodsImpl.apply(className);
+        memo.put(key, result);
+        return result;
     };
 
     /**
@@ -166,7 +217,11 @@ public class QueryOnClass {
      * Hint1: You can reuse the results of {@link QueryOnClass#findAllMethods}
      */
     private static Integer findClassesWithMainCount = 0;
-    public Supplier<List<String>> findClassesWithMain = () -> {
+    public Supplier<List<String>> findClassesWithMainImpl = () -> {
+        String key = module.getASTID() +  "@" + "findClassesWithMain";
+        if(memo.containsKey(key)) {
+            return (List<String>) memo.get(key);
+        }
         countLock.lock();
         findClassesWithMainCount += 1;
         countLock.unlock();
@@ -175,12 +230,20 @@ public class QueryOnClass {
         module.filter(node -> node instanceof ClassDefStmt)
                 .forEach(clazz -> {
                     String className = ((ClassDefStmt) clazz).getName();
-                    List<String> allMethods = findAllMethods.apply(className);
+                    List<String> allMethods = findAllMethodsImpl.apply(className);
                     if (allMethods.contains("main")) {
                         results.add(className);
                     }
                 });
         return results;
+    };
+
+    public Supplier<List<String>> findClassesWithMain = () -> {
+        String key = module.getASTID() +  "@" + "findClassesWithMain";
+
+        List<String> result = findClassesWithMainImpl.get();
+        memo.put(key, result);
+        return result;
     };
 }
 
