@@ -53,7 +53,7 @@ public class RapidASTManagerEngine {
      *
      * Hint1: you can **only** use {@link Thread} to implement the method
      * Hint2: you can use {@link ParserWorker#run()}
-     * Hint3: please distribute the files to be loaded for each thread manually
+     * Hint3: please distribute the files to be loaded for each thread manually and try to achieve high efficiency
      */
     public void processXMLParsingDivide(String xmlDirPath, List<String> xmlIDs, int numThread) {
         List<Thread> threads = new ArrayList<>(numThread);
@@ -79,7 +79,16 @@ public class RapidASTManagerEngine {
         }
     }
 
-
+    /**
+     * TODO: Implement `processCommands` to conduct a list of queries on ASTs based on execution mode
+     *
+     * @param commands a list of queries, you can refer to test cases to learn its format
+     * @param executionMode mode 0 to mode 2
+     *
+     * Hint1: you need to invoke {@link RapidASTManagerEngine#executeCommandsSerial(List)}
+     *                           {@link RapidASTManagerEngine#executeCommandsParallel(List)} 
+     *                      and {@link RapidASTManagerEngine#executeCommandsParallelWithOrder(List)}
+     */
     public List<Object> processCommands(List<Object[]> commands, int executionMode) {
         // TODO 3: handle different execution modes
         List<QueryWorker> workers = new ArrayList<>();
@@ -100,6 +109,11 @@ public class RapidASTManagerEngine {
         return allResults;
     }
 
+    /**
+     * TODO: Implement `executeCommandsSerial` to handle a list of `QueryWorker`
+     *
+     * @param workers a list of workers that should be executed sequentially
+     */
     private void executeCommandsSerial(List<QueryWorker> workers) {
         // TODO 4: sequential execution
         for (QueryWorker worker : workers) {
@@ -109,6 +123,14 @@ public class RapidASTManagerEngine {
         }
     }
 
+    /**
+     * TODO: Implement `executeCommandsParallel` to handle a list of `QueryWorker`
+     *
+     * @param workers a list of workers that should be executed in parallel
+     * 
+     * Hint1: you can **only** use {@link Thread} to implement the method
+     * Hint2: you can use unlimited number of threads
+     */
     private void executeCommandsParallel(List<QueryWorker> workers) {
         // TODO 5: parallel execution
         List<Thread> threads = new ArrayList<>();
@@ -133,6 +155,16 @@ public class RapidASTManagerEngine {
         }
     }
 
+    /**
+     * TODO: Implement `executeCommandsParallelWithOrder` to handle a list of `QueryWorker`
+     *
+     * @param workers a list of workers that should be executed in parallel with correct order
+     *
+     * Hint1: you can invoke {@link RapidASTManagerEngine#executeCommandsParallel(List)} to reuse its logic
+     * Hint2: you can use unlimited number of threads
+     * Hint3: please design the order of queries running in parallel based on the calling dependence of method
+     *                in queryOnClass
+     */
     private void executeCommandsParallelWithOrder(List<QueryWorker> workers) {
         // TODO 6: parallel execution with order
         for (QueryWorker worker : workers) {
@@ -165,6 +197,20 @@ public class RapidASTManagerEngine {
         executeCommandsParallel(workers);
     }
 
+    /**
+     * TODO: Implement `processCommandsInterLeaved` to handle a list of commands
+     *
+     * @param commands a list of import and query commands that should be executed in parallel 
+     *
+     * Hint1: you can **only** use {@link Thread} to create threads
+     * Hint2: you can use unlimited number of threads
+     * Hint3: please design the order of commands, where for specific ID, AST load should be executed before query
+     * Hint4: threads would write into/read from {@link RapidASTManagerEngine#id2ASTModules} at the same time, please
+     *                 synchronize them carefully
+     * Hint5: you can invoke {@link QueryWorker#run()} and {@link ParserWorker#run()}
+     * Hint6: order of queries should be consistent to that in given commands, no need to consider 
+     *                 redundant computation now
+     */
     public List<Object> processCommandsInterLeaved(List<Object[]> commands) {
         // TODO 7: interleaved parsing and query with unlimited threads
         List<QueryWorker> workers = new ArrayList<>();
@@ -232,6 +278,20 @@ public class RapidASTManagerEngine {
     }
 
 
+    /**
+     * TODO: Implement `processCommandsInterLeavedTwoThread` to handle a list of commands
+     *
+     * @param commands a list of import and query commands that should be executed in parallel 
+     *
+     * Hint1: you can **only** use {@link Thread} to create threads
+     * Hint2: you can only use two threads, one for AST load, another for query
+     * Hint3: please design the order of commands, where for specific ID, AST load should be executed before query
+     * Hint4: threads would write into/read from {@link RapidASTManagerEngine#id2ASTModules} at the same time, please
+     *                 synchronize them carefully
+     * Hint5: you can invoke {@link QueryWorker#run()} and {@link ParserWorker#run()}
+     * Hint6: order of queries should be consistent to that in given commands, no need to consider 
+     *                      redundant computation now
+     */
     public List<Object> processCommandsInterLeavedTwoThread(List<Object[]> commands) {
         // TODO 8: interleaved parsing and query with two threads
         List<QueryWorker> workers = new ArrayList<>();
@@ -286,6 +346,18 @@ public class RapidASTManagerEngine {
         return allResults;
     }
 
+    /**
+     * TODO: (Bonus) Implement `processCommandsInterLeavedTwoThread` to handle a list of commands
+     *
+     * @param commands a list of import and query commands that should be executed in parallel 
+     * @param numThread number of threads you are allowed to use
+     *                 
+     * Hint1: you can only distribute commands on your need
+     * Hint2: please design the order of commands, where for specific ID, AST load should be executed before query
+     * Hint3: threads would write into/read from {@link RapidASTManagerEngine#id2ASTModules} at the same time, please
+     *                 synchronize them carefully
+     * Hint4: you can invoke {@link QueryWorker#run()} and {@link ParserWorker#run()}
+     */
     public List<Object> processCommandsInterLeavedFixedThread(List<Object[]> commands, int numThread) {
         // TODO: Bonus: interleaved parsing and query with given number of threads
         // TODO: separate parser tasks and query tasks with the goal of efficiency

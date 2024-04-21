@@ -1,10 +1,10 @@
 package hk.ust.comp3021.parallel;
 
-import java.nio.file.Paths;
-import java.util.HashMap;
+import java.nio.file.*;
+import java.util.*;
 
-import hk.ust.comp3021.utils.ASTModule;
-import hk.ust.comp3021.utils.ASTParser;
+import hk.ust.comp3021.utils.*;
+
 
 public class ParserWorker implements Runnable {
     private String xmlID;
@@ -27,6 +27,7 @@ public class ParserWorker implements Runnable {
      * 
      * Hint1: you can invoke {@link ASTParser#parse()} to load the file but notice that 
      * {@link ParserWorker#id2ASTModules} will be written by multiple threads simultaneously
+     *
      * Hint2: the methods will be used in both Task 1 and Task 3, please carefully design it
      * to be compatible with both tasks
      */
