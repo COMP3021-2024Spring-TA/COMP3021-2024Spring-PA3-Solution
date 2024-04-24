@@ -6,6 +6,8 @@ import hk.ust.comp3021.stmt.*;
 import hk.ust.comp3021.utils.*;
 
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.*;
 import java.util.stream.*;
 
@@ -19,6 +21,13 @@ public class QueryOnMethod {
         this.module = module;
     }
 
+    private static Lock orderLock = new ReentrantLock();
+    private static List<String> orderLists = new ArrayList<>();
+
+    public static List<String> getOrderLists() {
+        return orderLists;
+    }
+    
     public Function<String, Optional<ASTElement>> findFuncInModule = name ->
             module.filter(node -> node instanceof FunctionDefStmt)
                     .stream()
@@ -36,6 +45,12 @@ public class QueryOnMethod {
      * Hints2: use {@link ASTElement#filter(Predicate)} method to implement the function
      */
     public Function<String, List<String>> findEqualCompareInFunc = funcName -> {
+        System.out.println("[LOG FROM QueryOnMethod] Querying findEqualCompareInFunc on AST " + this.module.getASTID());
+        String key = module.getASTID() +  "@" + "findEqualCompareInFunc" + "@" + funcName;
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         List<String> results = new ArrayList<>();
 
         if (findFuncInModule.apply(funcName).isPresent()) {
@@ -62,6 +77,12 @@ public class QueryOnMethod {
      * Hints3: use {@link ASTElement#filter(Predicate)} method to implement the function
      */
     public Supplier<List<String>> findFuncWithBoolParam = () -> {
+        System.out.println("[LOG FROM QueryOnMethod] Querying findFuncWithBoolParam on AST " + this.module.getASTID());
+        String key = module.getASTID() +  "@" + "findFuncWithBoolParam";
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+
         Predicate<ASTElement> hasBoolName = annotation -> annotation instanceof NameExpr
                 && ((NameExpr) annotation).getId().equals("bool");
 
@@ -112,6 +133,11 @@ public class QueryOnMethod {
      */
     public Function<String, List<String>> findUnusedParamInFunc = funcName -> {
         List<String> results = new ArrayList<>();
+        System.out.println("[LOG FROM QueryOnMethod] Querying findUnusedParamInFunc on AST " + this.module.getASTID());
+        String logKey = module.getASTID() +  "@" + "findUnusedParamInFunc" + "@" + funcName;
+        orderLock.lock();
+        orderLists.add(logKey);
+        orderLock.unlock();
 
         // find all functions whose name matches funcName
         if (findFuncInModule.apply(funcName).isPresent()) {
@@ -186,6 +212,12 @@ public class QueryOnMethod {
      * Hints4: if func does not exist in current module, return empty list
      */
     public Function<String, List<String>> findDirectCalledOtherB = funcName -> {
+        System.out.println("[LOG FROM QueryOnMethod] Querying findDirectCalledOtherB on AST " + this.module.getASTID());
+        String logKey = module.getASTID() +  "@" + "findDirectCalledOtherB" + "@" + funcName;
+        orderLock.lock();
+        orderLists.add(logKey);
+        orderLock.unlock();
+
         List<String> results = new ArrayList<>();
 
         Map<FunctionDefStmt, List<ASTElement>> func2CalledFuncs = module
@@ -239,6 +271,13 @@ public class QueryOnMethod {
      */
 
     public BiPredicate<String, String> answerIfACalledB = (funcNameA, funcNameB) -> {
+        System.out.println("[LOG FROM QueryOnMethod] Querying answerIfACalledB on AST " + this.module.getASTID());
+        
+        String key = module.getASTID() +  "@" + "answerIfACalledB" + "@" + funcNameA + "@" + funcNameB;
+        orderLock.lock();
+        orderLists.add(key);
+        orderLock.unlock();
+        
         if (findFuncInModule.apply(funcNameA).isPresent() && findFuncInModule.apply(funcNameB).isPresent()) {
             List<String> tobeProcessed = new ArrayList<>();
             tobeProcessed.add(funcNameA);

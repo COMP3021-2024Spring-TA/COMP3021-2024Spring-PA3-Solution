@@ -36,6 +36,7 @@ buildscript {
 }
 
 dependencies {
+    implementation(files("lib/ASTQuery.jar"))
     testImplementation("org.jetbrains:annotations:23.0.0")
     compileOnly("org.jetbrains:annotations:23.0.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
@@ -52,7 +53,7 @@ checkstyle {
 
 tasks {
     withType<JavaCompile> {
-        options.compilerArgs = listOf("--enable-preview")
+        options.compilerArgs = listOf("--enable-preview", "-Xlint:unchecked")
         options.encoding = "UTF-8"
         sourceCompatibility = "18"
         targetCompatibility = "18"

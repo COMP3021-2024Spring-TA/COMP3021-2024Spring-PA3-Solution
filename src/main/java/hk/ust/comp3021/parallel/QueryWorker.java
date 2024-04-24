@@ -1,10 +1,10 @@
 package hk.ust.comp3021.parallel;
 
 import hk.ust.comp3021.query.*;
-import hk.ust.comp3021.utils.ASTModule;
+import hk.ust.comp3021.utils.*;
 
 import java.util.*;
-import java.util.Map.Entry;
+import java.util.Map.*;
 
 public class QueryWorker implements Runnable {
     public HashMap<String, ASTModule> id2ASTModules;
@@ -14,9 +14,8 @@ public class QueryWorker implements Runnable {
     public Object[] args;
     public int mode;
     private Object result;
-
-    private Integer preds = 0;  // REMOVE
-    private List<QueryWorker> successors = new ArrayList<>(); // REMOVE
+    private Integer preds = 0;  // TODO: REMOVE for skeleton
+    private final List<QueryWorker> successors = new ArrayList<>(); // TODO: REMOVE for skeleton
 
     public QueryWorker(HashMap<String, ASTModule> id2ASTModules,
                        String queryID, String astID,
@@ -43,8 +42,13 @@ public class QueryWorker implements Runnable {
         }
     }
 
+    /**
+     * TODO: Implement `runSerial` to process current query command and store the results in `result`
+     *
+     * Hint1: you must invoke the methods in {@link QueryOnNode}, {@link QueryOnMethod} and {@link QueryOnClass}
+     * to achieve the query
+     */
     private void runSerial() {
-        // TODO: run specific query name, the implementation of query is given in jar package
         switch (queryName) {
             case "findFuncWithArgGtN": {
                 QueryOnNode query = new QueryOnNode(id2ASTModules);
@@ -121,9 +125,48 @@ public class QueryWorker implements Runnable {
         }
     }
 
+    /**
+     * TODO: Implement `runParallel` to process current query command and store the results in `result` where
+     * queryOnNode should be conducted with multiple threads
+     *
+     * Hint1: you must invoke the methods in {@link QueryOnNode}, {@link QueryOnMethod} and {@link QueryOnClass}
+     * to achieve the query
+     * Hint2: you can let methods in queryOnNode to work on single AST by changing the arguments when creating 
+     * {@link QueryOnNode} object
+     * Hint3: please use {@link Thread} to achieve multi-threading
+     * Hint4: you can invoke {@link QueryWorker#runSerial()} to reuse its logic
+     */
     private void runParallel() {
         // TODO: parallel the query on node 
         switch (queryName) {
+            case "findFuncWithArgGtN": {
+                HashMap<String, List<String>> id2PartialResults = new HashMap<>();
+                List<Thread> subThreads = new ArrayList<>();
+                for (String id : id2ASTModules.keySet()) {
+                    HashMap<String, ASTModule> partialInput = new HashMap<>();
+                    partialInput.put(id, id2ASTModules.get(id));
+                    Thread subThread = new Thread(() -> {
+                        QueryOnNode query = new QueryOnNode(partialInput);
+                        List<String> partialResult = query.findFuncWithArgGtN.apply((Integer) args[0]);
+                        id2PartialResults.put(id, partialResult);
+                    });
+                    subThreads.add(subThread);
+                    subThread.start();
+                }
+                try {
+                    for (Thread subThread: subThreads) {
+                        subThread.join();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                List<String> result = new ArrayList<>();
+                for (List<String> partialRes: id2PartialResults.values()) {
+                    result.addAll(partialRes);
+                }
+                this.result = result;
+                break;
+            }
             case "calculateOp2Nums": {
                 HashMap<String, HashMap<String, Integer>> id2PartialResults = new HashMap<>();
                 List<Thread> subThreads = new ArrayList<>();
@@ -251,6 +294,15 @@ public class QueryWorker implements Runnable {
         this.preds -= 1;
     }
 
+    /**
+     * TODO: Implement `runParallelWithOrder` to process current query command and store the results in `result` where
+     * the current query should wait until the prerequisite has been computed
+     *
+     * Hint1: you must invoke the methods in {@link QueryOnNode}, {@link QueryOnMethod} and {@link QueryOnClass}
+     * to achieve the query
+     * Hint2: you can invoke {@link QueryWorker#runParallel()} to reuse its logic
+     * Hint3: please use {@link Thread} to achieve multi-threading
+     */
     private void runParallelWithOrder() {
         // TODO: determine the order of query on class to reduce redundant execution
         while (true) {
