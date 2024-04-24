@@ -128,8 +128,9 @@ public class RapidASTManagerEngine {
             for (QueryWorker worker2 : workers) {
                 if (worker.queryID.equals(worker2.queryID))
                     continue;
-                if (worker.astID.equals(worker2.astID))
+                if (!worker.astID.equals(worker2.astID)) {
                     continue;
+                }  
                 boolean runsBefore = false; // whether worker runs before worker2
                 if (worker2.queryName.equals("findClassesWithMain")) {
                     if (worker.queryName.equals("findAllMethods")
