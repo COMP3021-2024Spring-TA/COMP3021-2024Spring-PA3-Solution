@@ -182,7 +182,7 @@ public class ParallelTest {
 
     @Tag(TestKind.HIDDEN)
     @Test
-    public void testParallelExecutionWithOrder() {
+    public void testParallelExecutionWithOrder1() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19"), 4);
 
