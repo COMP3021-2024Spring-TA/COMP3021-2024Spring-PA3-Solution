@@ -307,8 +307,10 @@ public class QueryWorker implements Runnable {
         // TODO: determine the order of query on class to reduce redundant execution
         while (true) {
             // System.out.println("Waiting..." + this.queryName + this.preds);
-            if (preds <= 0) {
-                break;
+            synchronized (this.preds) {
+                if (preds <= 0) {
+                    break;
+                }
             }
         }
 

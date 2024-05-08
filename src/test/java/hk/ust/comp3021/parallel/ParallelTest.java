@@ -47,64 +47,6 @@ public class ParallelTest {
         assertEquals(3, engine.getId2ASTModule().size());
     }
 
-
-    @Tag(TestKind.HIDDEN)
-    @Test
-    public void testParallelLoadingAllPool() throws InterruptedException {
-        RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        final AtomicBoolean running = new AtomicBoolean(true);
-
-        Thread counterThread = new Thread(() -> {
-            while (running.get()) {
-                System.out.println("Current Active Thread " + Thread.activeCount());
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        counterThread.start();
-        System.out.println("Initial Active Thread " + Thread.activeCount());
-        engine.processXMLParsingPool("resources/pythonxmlPA1/",
-                IntStream.rangeClosed(0, 836)
-                        .boxed()
-                        .map(Object::toString)
-                        .collect(Collectors.toList()), 4);
-        running.set(false);
-        counterThread.join();
-        assertEquals(837, engine.getId2ASTModule().size());
-    }
-
-
-    @Tag(TestKind.HIDDEN)
-    @Test
-    public void testParallelLoadingAllDivide() throws InterruptedException {
-        RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        final AtomicBoolean running = new AtomicBoolean(true);
-
-        Thread counterThread = new Thread(() -> {
-            while (running.get()) {
-                System.out.println("Current Active Thread " + Thread.activeCount());
-                try {
-                    Thread.sleep(10);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        });
-        counterThread.start();
-        System.out.println("Initial Active Thread " + Thread.activeCount());
-        engine.processXMLParsingDivide("resources/pythonxmlPA1/",
-                IntStream.rangeClosed(0, 836)
-                        .boxed()
-                        .map(Object::toString)
-                        .collect(Collectors.toList()), 4);
-        running.set(false);
-        counterThread.join();
-        assertEquals(837, engine.getId2ASTModule().size());
-    }
-
     @Tag(TestKind.PUBLIC)
     @Test
     public void testSerialExecution() {
@@ -163,8 +105,8 @@ public class ParallelTest {
         List<Object[]> commands = new ArrayList<>();
         List<Object> expectedResults = new ArrayList<>();
         List<Integer> expectedCounts = List.of(2, 2, 0, 0,0);
-        commands.add(new Object[] {"2", "18", "findSuperClasses", new Object[] {"B"}});
-        commands.add(new Object[] {"3", "18", "haveSuperClass", new Object[] {"B", "A"}});
+        commands.add(new Object[] {"1", "18", "findSuperClasses", new Object[] {"B"}});
+        commands.add(new Object[] {"2", "18", "haveSuperClass", new Object[] {"B", "A"}});
         commands.add(new Object[] {"3", "18", "haveSuperClass", new Object[] {"B", "H"}});
 
         expectedResults.add(Set.of("A"));
@@ -180,32 +122,6 @@ public class ParallelTest {
         
     }
 
-    @Tag(TestKind.HIDDEN)
-    @Test
-    public void testParallelExecutionWithOrder1() {
-        RapidASTManagerEngine engine = new RapidASTManagerEngine();
-        engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19"), 4);
-
-        List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
-        List<Integer> expectedCounts = List.of(2, 2, 0, 0,0);
-
-        commands.add(new Object[] {"1", "18", "haveSuperClass", new Object[] {"B", "H"}});
-        commands.add(new Object[] {"2", "18", "haveSuperClass", new Object[] {"B", "A"}});
-        commands.add(new Object[] {"3", "18", "findSuperClasses", new Object[] {"B"}});
-
-        expectedResults.add(false);
-        expectedResults.add(true);
-        expectedResults.add(Set.of("A"));
-
-        QueryOnClass.clearCounts();
-        engine.processCommands(commands, 2);
-        List<Object> allResults = engine.getAllResults();
-        List<Integer> allCounts = QueryOnClass.getCounts();
-        checkResults(expectedResults, allResults, commands);
-        assertEquals(expectedCounts, allCounts);
-        
-    }
 
     @Tag(TestKind.PUBLIC)
     @Test

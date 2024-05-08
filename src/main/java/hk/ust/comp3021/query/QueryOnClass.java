@@ -55,17 +55,10 @@ public class QueryOnClass {
 
     private static Integer findSuperClassesCount = 0;
 
-    @SuppressWarnings("unchecked")
-    private Function<String, List<String>> findSuperClassesImpl = (className) -> {
-        String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
-        if(memo.containsKey(key)) {
-            return (List<String>) memo.get(key);
-        }
-
+    private Function<String, List<String>> findSuperClassesImplRecursive = (className) -> {
         countLock.lock();
         findSuperClassesCount += 1;
         countLock.unlock();
-
         List<String> results = new ArrayList<>();
         if (findClassInModule.apply(className, module).isPresent()) {
             ClassDefStmt clazz = (ClassDefStmt) findClassInModule.apply(className, module).get();
@@ -73,7 +66,7 @@ public class QueryOnClass {
                         if (node instanceof NameExpr) {
                             String superClass = ((NameExpr) node).getId();
                             results.add(superClass);
-                            List<String> recSuperClasses = this.findSuperClassesImpl.apply(superClass);
+                            List<String> recSuperClasses = this.findSuperClassesImplRecursive.apply(superClass);
                             results.addAll(recSuperClasses);
                         }
                     })
@@ -81,6 +74,18 @@ public class QueryOnClass {
         }
         return results;
     };
+    
+    @SuppressWarnings("unchecked")
+    private Function<String, List<String>> findSuperClassesImpl = (className) -> {
+        String key = module.getASTID() + "@" + "findSuperClasses" + "@" + className;
+        synchronized (memo) {
+            if (memo.containsKey(key)) {
+                return (List<String>) memo.get(key);
+            }
+            return findSuperClassesImplRecursive.apply(className);
+        }
+    };
+    
     public Function<String, List<String>> findSuperClasses = (className) -> {
         String key = module.getASTID() +  "@" + "findSuperClasses" + "@" + className;
         System.out.println("[LOG FROM QueryOnClass] Querying findSuperClasses on AST " + this.module.getASTID());
@@ -89,9 +94,11 @@ public class QueryOnClass {
         orderLists.add(key);
         orderLock.unlock();
         
-        List<String> result = findSuperClassesImpl.apply(className);
-        memo.put(key, result);
-        return result;
+        synchronized (memo) {
+            List<String> result = findSuperClassesImpl.apply(className);
+            memo.put(key, result);
+            return result;
+        }
     };
 
 
@@ -109,13 +116,15 @@ public class QueryOnClass {
     private static Integer haveSuperClassCount = 0;
     public BiFunction<String, String, Boolean> haveSuperClassImpl = (classA, classB) -> {
         String key = module.getASTID() +  "@" + "haveSuperClass" + "@" + classA + "@" +classB;
-        if(memo.containsKey(key)) {
-            return (Boolean) memo.get(key);
+        synchronized (memo) {
+            if (memo.containsKey(key)) {
+                return (Boolean) memo.get(key);
+            }
+            countLock.lock();
+            haveSuperClassCount += 1;
+            countLock.unlock();
+            return findSuperClassesImpl.apply(classA).contains(classB);
         }
-        countLock.lock();
-        haveSuperClassCount += 1;
-        countLock.unlock();
-        return findSuperClassesImpl.apply(classA).contains(classB);
     };
 
     public BiFunction<String, String, Boolean> haveSuperClass = (classA, classB) -> {
@@ -125,10 +134,11 @@ public class QueryOnClass {
         orderLock.lock();
         orderLists.add(key);
         orderLock.unlock();
-        
-        Boolean result = haveSuperClassImpl.apply(classA, classB);
-        memo.put(key, result);
-        return result;
+        synchronized (memo) {
+            Boolean result = haveSuperClassImpl.apply(classA, classB);
+            memo.put(key, result);
+            return result;
+        }
 
     };
 
@@ -163,27 +173,29 @@ public class QueryOnClass {
     @SuppressWarnings("unchecked")
     public Supplier<List<String>> findOverridingMethodsImpl = () -> {
         String key = module.getASTID() +  "@" + "findOverridingMethods";
-        if(memo.containsKey(key)) {
-            return (List<String>) memo.get(key);
+        synchronized (memo) {
+            if (memo.containsKey(key)) {
+                return (List<String>) memo.get(key);
+            }
+            countLock.lock();
+            findOverridingMethodsCount += 1;
+            countLock.unlock();
+            List<String> results = new ArrayList<>();
+            module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
+                String className = ((ClassDefStmt) clazz).getName();
+                List<String> directMethods = findDirectMethods.apply(className);
+                List<String> superMethods = new ArrayList<>();
+                findSuperClassesImpl.apply(className).forEach(superClassName -> {
+                    superMethods.addAll(findDirectMethods.apply(superClassName));
+                });
+                directMethods.forEach(methodName -> {
+                    if (superMethods.contains(methodName)) {
+                        results.add(methodName);
+                    }
+                });
+            });
+            return results;
         }
-        countLock.lock();
-        findOverridingMethodsCount += 1;
-        countLock.unlock();
-        List<String> results = new ArrayList<>();
-        module.filter(node -> node instanceof ClassDefStmt).forEach(clazz -> {
-            String className = ((ClassDefStmt) clazz).getName();
-            List<String> directMethods = findDirectMethods.apply(className);
-            List<String> superMethods = new ArrayList<>();
-            findSuperClassesImpl.apply(className).forEach(superClassName -> {
-                superMethods.addAll(findDirectMethods.apply(superClassName));
-            });
-            directMethods.forEach(methodName -> {
-                if (superMethods.contains(methodName)) {
-                    results.add(methodName);
-                }
-            });
-        });
-        return results;
     };
 
     public Supplier<List<String>> findOverridingMethods = () -> {
@@ -194,9 +206,11 @@ public class QueryOnClass {
         orderLists.add(key);
         orderLock.unlock();
         
-        List<String> result = findOverridingMethodsImpl.get();
-        memo.put(key, result);
-        return result;
+        synchronized (memo) {
+            List<String> result = findOverridingMethodsImpl.get();
+            memo.put(key, result);
+            return result;
+        }
     };
 
     /**
@@ -215,18 +229,20 @@ public class QueryOnClass {
     @SuppressWarnings("unchecked")
     public Function<String, List<String>> findAllMethodsImpl = (className) -> {
         
-        String key = module.getASTID() +  "@" + "findAllMethods" + "@" + className;
-        if(memo.containsKey(key)) {
-            return (List<String>) memo.get(key);
+        String key = module.getASTID() + "@" + "findAllMethods" + "@" + className;
+        synchronized (memo) {
+            if (memo.containsKey(key)) {
+                return (List<String>) memo.get(key);
+            }
+            countLock.lock();
+            findAllMethodsCount += 1;
+            countLock.unlock();
+            HashSet<String> results = new HashSet<>(findDirectMethods.apply(className));
+            findSuperClassesImpl.apply(className).forEach(superClass -> {
+                results.addAll(findDirectMethods.apply(superClass));
+            });
+            return new ArrayList<>(results);
         }
-        countLock.lock();
-        findAllMethodsCount += 1;
-        countLock.unlock();
-        HashSet<String> results = new HashSet<>(findDirectMethods.apply(className));
-        findSuperClassesImpl.apply(className).forEach(superClass -> {
-            results.addAll(findDirectMethods.apply(superClass));
-        });
-        return new ArrayList<>(results);
     };
 
     public Function<String, List<String>> findAllMethods = (className) -> {
@@ -236,9 +252,11 @@ public class QueryOnClass {
         orderLists.add(key);
         orderLock.unlock();
         
-        List<String> result = findAllMethodsImpl.apply(className);
-        memo.put(key, result);
-        return result;
+        synchronized (memo) {
+            List<String> result = findAllMethodsImpl.apply(className);
+            memo.put(key, result);
+            return result;
+        }
     };
 
     /**
@@ -253,22 +271,24 @@ public class QueryOnClass {
     @SuppressWarnings("unchecked")
     public Supplier<List<String>> findClassesWithMainImpl = () -> {
         String key = module.getASTID() +  "@" + "findClassesWithMain";
-        if(memo.containsKey(key)) {
-            return (List<String>) memo.get(key);
+        synchronized (memo) {
+            if (memo.containsKey(key)) {
+                return (List<String>) memo.get(key);
+            }
+            countLock.lock();
+            findClassesWithMainCount += 1;
+            countLock.unlock();
+            List<String> results = new ArrayList<>();
+            module.filter(node -> node instanceof ClassDefStmt)
+                    .forEach(clazz -> {
+                        String className = ((ClassDefStmt) clazz).getName();
+                        List<String> allMethods = findAllMethodsImpl.apply(className);
+                        if (allMethods.contains("main")) {
+                            results.add(className);
+                        }
+                    });
+            return results;
         }
-        countLock.lock();
-        findClassesWithMainCount += 1;
-        countLock.unlock();
-        List<String> results = new ArrayList<>();
-        module.filter(node -> node instanceof ClassDefStmt)
-                .forEach(clazz -> {
-                    String className = ((ClassDefStmt) clazz).getName();
-                    List<String> allMethods = findAllMethodsImpl.apply(className);
-                    if (allMethods.contains("main")) {
-                        results.add(className);
-                    }
-                });
-        return results;
     };
 
     public Supplier<List<String>> findClassesWithMain = () -> {
@@ -278,9 +298,11 @@ public class QueryOnClass {
         orderLists.add(key);
         orderLock.unlock();
 
-        List<String> result = findClassesWithMainImpl.get();
-        memo.put(key, result);
-        return result;
+        synchronized (memo) {
+            List<String> result = findClassesWithMainImpl.get();
+            memo.put(key, result);
+            return result;
+        }
     };
 }
 

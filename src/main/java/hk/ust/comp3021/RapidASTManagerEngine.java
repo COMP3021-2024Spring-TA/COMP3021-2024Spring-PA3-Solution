@@ -181,12 +181,10 @@ public class RapidASTManagerEngine {
                         runsBefore = true;
                     }
                 } else if (worker.queryName.equals("findSuperClasses")) {
-                    if (worker2.queryName.equals("haveSuperClass")
+                    if ((worker2.queryName.equals("haveSuperClass") && worker.args[0] == worker2.args[0])
                             || worker2.queryName.equals("findOverridingMethods")
-                            || worker2.queryName.equals("findAllMethods")) {
-                        if (worker.args[0] == worker2.args[0]) {
-                            runsBefore = true;
-                        }
+                            || (worker2.queryName.equals("findAllMethods") && worker.args[0] == worker2.args[0])) {
+                        runsBefore = true;
                     }
                 }
                 if (runsBefore) {
