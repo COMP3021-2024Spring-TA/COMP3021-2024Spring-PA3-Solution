@@ -1,0 +1,272 @@
+<ast>
+  <Module>
+    <body>
+      <FunctionDef name="func1" returns="None" type_comment="None" lineno="1" col_offset="0" end_lineno="3" end_col_offset="17">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param1" annotation="None" type_comment="None" lineno="1" col_offset="10" end_lineno="1" end_col_offset="16"/>
+            <arg arg="param2" annotation="None" type_comment="None" lineno="1" col_offset="18" end_lineno="1" end_col_offset="24"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="2" col_offset="4" end_lineno="2" end_col_offset="15">
+            <targets>
+              <Name id="param1" lineno="2" col_offset="4" end_lineno="2" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <Constant value="10" kind="None" lineno="2" col_offset="13" end_lineno="2" end_col_offset="15"/>
+          </Assign>
+          <Expr lineno="3" col_offset="4" end_lineno="3" end_col_offset="17">
+            <Call lineno="3" col_offset="4" end_lineno="3" end_col_offset="17">
+              <Name id="print" lineno="3" col_offset="4" end_lineno="3" end_col_offset="9">
+                <Load/>
+              </Name>
+              <args>
+                <Name id="param1" lineno="3" col_offset="10" end_lineno="3" end_col_offset="16">
+                  <Load/>
+                </Name>
+              </args>
+              <keywords/>
+            </Call>
+          </Expr>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func2" returns="None" type_comment="None" lineno="6" col_offset="0" end_lineno="8" end_col_offset="17">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param1" annotation="None" type_comment="None" lineno="6" col_offset="10" end_lineno="6" end_col_offset="16"/>
+            <arg arg="param2" annotation="None" type_comment="None" lineno="6" col_offset="18" end_lineno="6" end_col_offset="24"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="7" col_offset="4" end_lineno="7" end_col_offset="19">
+            <targets>
+              <Name id="param1" lineno="7" col_offset="4" end_lineno="7" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <Name id="param2" lineno="7" col_offset="13" end_lineno="7" end_col_offset="19">
+              <Load/>
+            </Name>
+          </Assign>
+          <Expr lineno="8" col_offset="4" end_lineno="8" end_col_offset="17">
+            <Call lineno="8" col_offset="4" end_lineno="8" end_col_offset="17">
+              <Name id="print" lineno="8" col_offset="4" end_lineno="8" end_col_offset="9">
+                <Load/>
+              </Name>
+              <args>
+                <Name id="param1" lineno="8" col_offset="10" end_lineno="8" end_col_offset="16">
+                  <Load/>
+                </Name>
+              </args>
+              <keywords/>
+            </Call>
+          </Expr>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func3" returns="None" type_comment="None" lineno="10" col_offset="0" end_lineno="11" end_col_offset="32">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param1" annotation="None" type_comment="None" lineno="10" col_offset="10" end_lineno="10" end_col_offset="16"/>
+            <arg arg="param2" annotation="None" type_comment="None" lineno="10" col_offset="18" end_lineno="10" end_col_offset="24"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="11" col_offset="4" end_lineno="11" end_col_offset="32">
+            <targets>
+              <Name id="param1" lineno="11" col_offset="4" end_lineno="11" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <BoolOp lineno="11" col_offset="13" end_lineno="11" end_col_offset="32">
+              <Or/>
+              <values>
+                <Name id="param1" lineno="11" col_offset="13" end_lineno="11" end_col_offset="19">
+                  <Load/>
+                </Name>
+                <Constant value="default" kind="None" lineno="11" col_offset="23" end_lineno="11" end_col_offset="32"/>
+              </values>
+            </BoolOp>
+          </Assign>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func4" returns="None" type_comment="None" lineno="13" col_offset="0" end_lineno="15" end_col_offset="21">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param1" annotation="None" type_comment="None" lineno="13" col_offset="10" end_lineno="13" end_col_offset="16"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <If lineno="14" col_offset="4" end_lineno="15" end_col_offset="21">
+            <Name id="param1" lineno="14" col_offset="7" end_lineno="14" end_col_offset="13">
+              <Load/>
+            </Name>
+            <body>
+              <Assign type_comment="None" lineno="15" col_offset="8" end_lineno="15" end_col_offset="21">
+                <targets>
+                  <Name id="param1" lineno="15" col_offset="8" end_lineno="15" end_col_offset="14">
+                    <Store/>
+                  </Name>
+                </targets>
+                <Constant value="True" kind="None" lineno="15" col_offset="17" end_lineno="15" end_col_offset="21"/>
+              </Assign>
+            </body>
+            <orelse/>
+          </If>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func5" returns="None" type_comment="None" lineno="17" col_offset="0" end_lineno="18" end_col_offset="27">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param1" annotation="None" type_comment="None" lineno="17" col_offset="10" end_lineno="17" end_col_offset="16"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="18" col_offset="4" end_lineno="18" end_col_offset="27">
+            <targets>
+              <Name id="param1" lineno="18" col_offset="4" end_lineno="18" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="18" col_offset="13" end_lineno="18" end_col_offset="27">
+              <Name id="max" lineno="18" col_offset="13" end_lineno="18" end_col_offset="16">
+                <Load/>
+              </Name>
+              <args>
+                <Name id="param1" lineno="18" col_offset="17" end_lineno="18" end_col_offset="23">
+                  <Load/>
+                </Name>
+                <Constant value="0" kind="None" lineno="18" col_offset="25" end_lineno="18" end_col_offset="26"/>
+              </args>
+              <keywords/>
+            </Call>
+          </Assign>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func6" returns="None" type_comment="None" lineno="20" col_offset="0" end_lineno="22" end_col_offset="32">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param4" annotation="None" type_comment="None" lineno="20" col_offset="10" end_lineno="20" end_col_offset="16"/>
+            <arg arg="param6" annotation="None" type_comment="None" lineno="20" col_offset="18" end_lineno="20" end_col_offset="24"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Expr lineno="21" col_offset="4" end_lineno="21" end_col_offset="17">
+            <Call lineno="21" col_offset="4" end_lineno="21" end_col_offset="17">
+              <Name id="print" lineno="21" col_offset="4" end_lineno="21" end_col_offset="9">
+                <Load/>
+              </Name>
+              <args>
+                <Name id="param4" lineno="21" col_offset="10" end_lineno="21" end_col_offset="16">
+                  <Load/>
+                </Name>
+              </args>
+              <keywords/>
+            </Call>
+          </Expr>
+          <Assign type_comment="None" lineno="22" col_offset="4" end_lineno="22" end_col_offset="32">
+            <targets>
+              <Name id="param4" lineno="22" col_offset="4" end_lineno="22" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="22" col_offset="13" end_lineno="22" end_col_offset="32">
+              <Name id="max" lineno="22" col_offset="13" end_lineno="22" end_col_offset="16">
+                <Load/>
+              </Name>
+              <args>
+                <Compare lineno="22" col_offset="17" end_lineno="22" end_col_offset="28">
+                  <Name id="param6" lineno="22" col_offset="17" end_lineno="22" end_col_offset="23">
+                    <Load/>
+                  </Name>
+                  <ops>
+                    <Eq/>
+                  </ops>
+                  <comparators>
+                    <Constant value="1" kind="None" lineno="22" col_offset="27" end_lineno="22" end_col_offset="28"/>
+                  </comparators>
+                </Compare>
+                <Constant value="0" kind="None" lineno="22" col_offset="30" end_lineno="22" end_col_offset="31"/>
+              </args>
+              <keywords/>
+            </Call>
+          </Assign>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="func7" returns="None" type_comment="None" lineno="24" col_offset="0" end_lineno="25" end_col_offset="27">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args>
+            <arg arg="param3" annotation="None" type_comment="None" lineno="24" col_offset="10" end_lineno="24" end_col_offset="16"/>
+            <arg arg="param5" annotation="None" type_comment="None" lineno="24" col_offset="18" end_lineno="24" end_col_offset="24"/>
+            <arg arg="param4" annotation="None" type_comment="None" lineno="24" col_offset="26" end_lineno="24" end_col_offset="32"/>
+          </args>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="25" col_offset="4" end_lineno="25" end_col_offset="27">
+            <targets>
+              <Name id="param3" lineno="25" col_offset="4" end_lineno="25" end_col_offset="10">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="25" col_offset="13" end_lineno="25" end_col_offset="27">
+              <Name id="max" lineno="25" col_offset="13" end_lineno="25" end_col_offset="16">
+                <Load/>
+              </Name>
+              <args>
+                <Name id="param5" lineno="25" col_offset="17" end_lineno="25" end_col_offset="23">
+                  <Load/>
+                </Name>
+                <Constant value="0" kind="None" lineno="25" col_offset="25" end_lineno="25" end_col_offset="26"/>
+              </args>
+              <keywords/>
+            </Call>
+          </Assign>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+    </body>
+    <type_ignores/>
+  </Module>
+</ast>

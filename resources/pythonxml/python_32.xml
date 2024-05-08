@@ -1,0 +1,175 @@
+<ast>
+  <Module>
+    <body>
+      <FunctionDef name="reuse_bad" returns="None" type_comment="None" lineno="1" col_offset="0" end_lineno="6" end_col_offset="13">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args/>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="2" col_offset="4" end_lineno="2" end_col_offset="14">
+            <targets>
+              <Name id="a" lineno="2" col_offset="4" end_lineno="2" end_col_offset="5">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="2" col_offset="8" end_lineno="2" end_col_offset="14">
+              <Name id="open" lineno="2" col_offset="8" end_lineno="2" end_col_offset="12">
+                <Load/>
+              </Name>
+              <args/>
+              <keywords/>
+            </Call>
+          </Assign>
+          <Expr lineno="3" col_offset="4" end_lineno="3" end_col_offset="13">
+            <Call lineno="3" col_offset="4" end_lineno="3" end_col_offset="13">
+              <Attribute attr="close" lineno="3" col_offset="4" end_lineno="3" end_col_offset="11">
+                <Name id="a" lineno="3" col_offset="4" end_lineno="3" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+          <Assign type_comment="None" lineno="4" col_offset="4" end_lineno="4" end_col_offset="14">
+            <targets>
+              <Name id="a" lineno="4" col_offset="4" end_lineno="4" end_col_offset="5">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="4" col_offset="8" end_lineno="4" end_col_offset="14">
+              <Name id="open" lineno="4" col_offset="8" end_lineno="4" end_col_offset="12">
+                <Load/>
+              </Name>
+              <args/>
+              <keywords/>
+            </Call>
+          </Assign>
+          <Assign type_comment="None" lineno="5" col_offset="4" end_lineno="5" end_col_offset="14">
+            <targets>
+              <Name id="a" lineno="5" col_offset="4" end_lineno="5" end_col_offset="5">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="5" col_offset="8" end_lineno="5" end_col_offset="14">
+              <Name id="open" lineno="5" col_offset="8" end_lineno="5" end_col_offset="12">
+                <Load/>
+              </Name>
+              <args/>
+              <keywords/>
+            </Call>
+          </Assign>
+          <Expr lineno="6" col_offset="4" end_lineno="6" end_col_offset="13">
+            <Call lineno="6" col_offset="4" end_lineno="6" end_col_offset="13">
+              <Attribute attr="close" lineno="6" col_offset="4" end_lineno="6" end_col_offset="11">
+                <Name id="a" lineno="6" col_offset="4" end_lineno="6" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+      <FunctionDef name="reuse_good" returns="None" type_comment="None" lineno="8" col_offset="0" end_lineno="14" end_col_offset="13">
+        <arguments vararg="None" kwarg="None">
+          <posonlyargs/>
+          <args/>
+          <kwonlyargs/>
+          <kw_defaults/>
+          <defaults/>
+        </arguments>
+        <body>
+          <Assign type_comment="None" lineno="9" col_offset="4" end_lineno="9" end_col_offset="14">
+            <targets>
+              <Name id="a" lineno="9" col_offset="4" end_lineno="9" end_col_offset="5">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="9" col_offset="8" end_lineno="9" end_col_offset="14">
+              <Name id="open" lineno="9" col_offset="8" end_lineno="9" end_col_offset="12">
+                <Load/>
+              </Name>
+              <args/>
+              <keywords/>
+            </Call>
+          </Assign>
+          <Expr lineno="10" col_offset="4" end_lineno="10" end_col_offset="13">
+            <Call lineno="10" col_offset="4" end_lineno="10" end_col_offset="13">
+              <Attribute attr="close" lineno="10" col_offset="4" end_lineno="10" end_col_offset="11">
+                <Name id="a" lineno="10" col_offset="4" end_lineno="10" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+          <Assign type_comment="None" lineno="11" col_offset="4" end_lineno="11" end_col_offset="14">
+            <targets>
+              <Name id="a" lineno="11" col_offset="4" end_lineno="11" end_col_offset="5">
+                <Store/>
+              </Name>
+            </targets>
+            <Call lineno="11" col_offset="8" end_lineno="11" end_col_offset="14">
+              <Name id="open" lineno="11" col_offset="8" end_lineno="11" end_col_offset="12">
+                <Load/>
+              </Name>
+              <args/>
+              <keywords/>
+            </Call>
+          </Assign>
+          <Expr lineno="12" col_offset="4" end_lineno="12" end_col_offset="13">
+            <Call lineno="12" col_offset="4" end_lineno="12" end_col_offset="13">
+              <Attribute attr="close" lineno="12" col_offset="4" end_lineno="12" end_col_offset="11">
+                <Name id="a" lineno="12" col_offset="4" end_lineno="12" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+          <Expr lineno="13" col_offset="4" end_lineno="13" end_col_offset="12">
+            <Call lineno="13" col_offset="4" end_lineno="13" end_col_offset="12">
+              <Attribute attr="open" lineno="13" col_offset="4" end_lineno="13" end_col_offset="10">
+                <Name id="a" lineno="13" col_offset="4" end_lineno="13" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+          <Expr lineno="14" col_offset="4" end_lineno="14" end_col_offset="13">
+            <Call lineno="14" col_offset="4" end_lineno="14" end_col_offset="13">
+              <Attribute attr="close" lineno="14" col_offset="4" end_lineno="14" end_col_offset="11">
+                <Name id="a" lineno="14" col_offset="4" end_lineno="14" end_col_offset="5">
+                  <Load/>
+                </Name>
+                <Load/>
+              </Attribute>
+              <args/>
+              <keywords/>
+            </Call>
+          </Expr>
+        </body>
+        <decorator_list/>
+        <type_params/>
+      </FunctionDef>
+    </body>
+    <type_ignores/>
+  </Module>
+</ast>
