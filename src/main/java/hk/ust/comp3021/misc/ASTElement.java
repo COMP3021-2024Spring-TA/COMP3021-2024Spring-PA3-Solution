@@ -79,8 +79,11 @@ public abstract class ASTElement {
         if (predicate.test(this)) {
             filteredNodes.add(this);
         }
-
+        
         for (ASTElement child : this.getChildren()) {
+            if (child == null) {
+                continue;
+            }
             filteredNodes.addAll(child.filter(predicate));
         }
         return filteredNodes;
@@ -101,6 +104,9 @@ public abstract class ASTElement {
         action.accept(this);
 
         for (ASTElement child : this.getChildren()) {
+            if (child == null) {
+                continue;
+            }
             child.forEach(action);
         }
     }

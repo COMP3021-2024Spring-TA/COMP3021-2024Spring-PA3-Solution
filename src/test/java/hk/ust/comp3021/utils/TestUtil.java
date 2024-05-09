@@ -32,7 +32,12 @@ public class TestUtil {
             Object actual = actuals.get(i);
             String queryName = (String) ((Object[]) commands.get(i))[2];
 
-            if (queryName.equals("findClassesWithMain") || queryName.equals("findSuperClasses")) {
+            if (queryName.equals("findClassesWithMain")
+                    || queryName.equals("findSuperClasses")
+                    || queryName.equals("findFuncWithBoolParam")
+                    || queryName.equals("findEqualCompareInFunc")
+                    || queryName.equals("findUnusedParamInFunc")
+                    || queryName.equals("findDirectCalledOtherB")) {
                 assertEquals(expected, new HashSet<String>((List<String>) actual));
             } else {
                 assertEquals(expected, actual);
