@@ -154,7 +154,8 @@ public class Task2HiddenTest {
         expectedResults.add(query.calculateOp2Nums.get());
         expectedResults.add(query.processNodeFreq.get());
         expectedResults.add(query.calculateNode2Nums.apply("2"));
-
+        
+        QueryOnClass.clearCounts();
         engine.processCommands(commands, 0);
         List<Object> allResults = engine.getAllResults();
         System.out.println(allResults);
@@ -188,7 +189,8 @@ public class Task2HiddenTest {
         expectedResults.add(Set.of("param2", "param3"));
         expectedResults.add(Set.of("A"));
         expectedResults.add(true);
-
+        
+        QueryOnClass.clearCounts();
         engine.processCommands(commands, 0);
         List<Object> allResults = engine.getAllResults();
         System.out.println(allResults);
@@ -310,7 +312,7 @@ public class Task2HiddenTest {
     }
 
     @Tag(TestKind.HIDDEN)
-    @Test
+    @RepeatedTest(50)
     public void testParallelExecutionModeTime() {
         // may not succeed
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
@@ -389,24 +391,25 @@ public class Task2HiddenTest {
 
         long mode0timeElapsed = 0, mode1timeElapsed = 0, mode2timeElapsed = 0;
         long start, finish;
-
+        
+        QueryOnClass.clearCounts();
         start = System.nanoTime();
         engine.processCommands(commands, 0);
-
+        var ret1 = engine.getAllResults();
         finish = System.nanoTime();
         mode0timeElapsed += finish - start;
 
-
+        QueryOnClass.clearCounts();
         start = System.nanoTime();
         engine.processCommands(commands, 1);
-
+        var ret2 = engine.getAllResults();
         finish = System.nanoTime();
         mode1timeElapsed += finish - start;
 
-
+        QueryOnClass.clearCounts();
         start = System.nanoTime();
         engine.processCommands(commands, 2);
-
+        var ret3 = engine.getAllResults();
         finish = System.nanoTime();
         mode2timeElapsed += finish - start;
 
@@ -414,6 +417,10 @@ public class Task2HiddenTest {
         System.out.println(mode0timeElapsed);
         System.out.println(mode1timeElapsed);
         System.out.println(mode2timeElapsed);
+
+        assertEquals(ret1, ret2);        
+        assertEquals(ret2, ret3);
+
 
         assertTrue(mode0timeElapsed > mode1timeElapsed);
         assertTrue(mode1timeElapsed > mode2timeElapsed);
@@ -465,6 +472,7 @@ public class Task2HiddenTest {
         PrintStream printStream = new PrintStream(outputStream);
         PrintStream originalPrintStream = System.out;
         System.setOut(printStream);
+        QueryOnClass.clearCounts();
         engine.processCommands(commands, 0);
         System.setOut(originalPrintStream);
         String printedOutput = outputStream.toString();
@@ -530,6 +538,7 @@ public class Task2HiddenTest {
         PrintStream printStream = new PrintStream(outputStream);
         PrintStream originalPrintStream = System.out;
         System.setOut(printStream);
+        QueryOnClass.clearCounts();
         engine.processCommands(commands, 1);
         System.setOut(originalPrintStream);
         String printedOutput = outputStream.toString();
@@ -596,6 +605,7 @@ public class Task2HiddenTest {
         PrintStream printStream = new PrintStream(outputStream);
         PrintStream originalPrintStream = System.out;
         System.setOut(printStream);
+        QueryOnClass.clearCounts();
         engine.processCommands(commands, 2);
         System.setOut(originalPrintStream);
         String printedOutput = outputStream.toString();

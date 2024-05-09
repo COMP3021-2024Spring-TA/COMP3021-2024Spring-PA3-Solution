@@ -234,7 +234,7 @@ public class RapidASTManagerEngine {
         for (ParserWorker parser : parsers) {
             Thread thread = new Thread(() -> {
                 parser.run();
-                System.out.println("AST ID Loaded " + parser.getXmlID());
+//                System.out.println("AST ID Loaded " + parser.getXmlID());
             });
             parserThreads.add(thread);
             thread.start();
@@ -243,18 +243,18 @@ public class RapidASTManagerEngine {
         for (QueryWorker worker : workers) {
             Thread thread = new Thread(() -> {
                 synchronized (id2ASTModules) {
-                    if (!id2ASTModules.containsKey(worker.astID) || id2ASTModules.get(worker.astID) == null) {
+                    while (!id2ASTModules.containsKey(worker.astID) || id2ASTModules.get(worker.astID) == null) {
                         try {
-                            System.out.println("AST ID Waiting " + worker.astID);
+//                            System.out.println("AST ID Waiting " + worker.astID);
                             id2ASTModules.wait();
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
-                        System.out.println("AST ID Ready " + worker.astID);
                     }
+//                    System.out.println("AST ID Ready " + worker.astID);
                 }
                 worker.run();
-                System.out.println("Query ID Finish " + worker.queryID);
+//                System.out.println("Query ID Finish " + worker.queryID);
             });
             queryThreads.add(thread);
             thread.start();
@@ -313,7 +313,7 @@ public class RapidASTManagerEngine {
         Thread parserThread = new Thread(() -> {
             for (ParserWorker parser : parsers) {
                 parser.run();
-                System.out.println("AST ID Loaded " + parser.getXmlID());
+//                System.out.println("AST ID Loaded " + parser.getXmlID());
             }
         });
 
@@ -321,11 +321,11 @@ public class RapidASTManagerEngine {
             while (!workerQueue.isEmpty()) {
                 QueryWorker worker = workerQueue.remove(0);
                 if (!id2ASTModules.containsKey(worker.astID)) {
-                    System.out.println("Query ID " + worker.queryID + " Waiting " + worker.astID);
+//                    System.out.println("Query ID " + worker.queryID + " Waiting " + worker.astID);
                     workerQueue.add(worker);
                 } else {
                     worker.run();
-                    System.out.println("Query ID Finish " + worker.queryID);
+//                    System.out.println("Query ID Finish " + worker.queryID);
                 }
             }
         });
