@@ -150,7 +150,8 @@ public class ParallelTest {
         QueryOnClass.clearCounts();
         engine.processCommandsInterLeaved(commands);
         List<Object> allResults = engine.getAllResults();
-        checkResults(expectedResults, allResults, commands);
+        checkResults(expectedResults, allResults, 
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(6)));
     }
 
     @Tag(TestKind.PUBLIC)
@@ -178,7 +179,8 @@ public class ParallelTest {
         QueryOnClass.clearCounts();
         engine.processCommandsInterLeavedTwoThread(commands);
         List<Object> allResults = engine.getAllResults();
-        checkResults(expectedResults, allResults, commands);
+        checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(6)));
     }
 
     @Tag(TestKind.PUBLIC)
@@ -206,6 +208,7 @@ public class ParallelTest {
         QueryOnClass.clearCounts();
         engine.processCommandsInterLeavedFixedThread(commands, 3);
         List<Object> allResults = engine.getAllResults();
-        checkResults(expectedResults, allResults, commands);
+        checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(6)));
     }
 }

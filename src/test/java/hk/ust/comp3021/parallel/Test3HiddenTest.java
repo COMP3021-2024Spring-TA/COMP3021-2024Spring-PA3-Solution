@@ -2,15 +2,15 @@ package hk.ust.comp3021.parallel;
 
 import hk.ust.comp3021.RapidASTManagerEngine;
 import hk.ust.comp3021.query.QueryOnClass;
+import hk.ust.comp3021.query.QueryOnNode;
 import hk.ust.comp3021.utils.TestKind;
+import hk.ust.comp3021.utils.TestUtil;
 import org.junit.jupiter.api.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,22 +50,21 @@ public class Test3HiddenTest {
 
     @Tag(TestKind.HIDDEN)
     @RepeatedTest(50)
-    public void testInterleavedImportQueryNumThreadNoExp() {
+    public void testInterleavedImportQueryTest1() {
+        // check when one AST is not loaded
         initialNumThread = Thread.activeCount();
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
-        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
+        commands.add(new Object[]{"4", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"5", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "18", "haveSuperClass", new Object[]{"B", "A"}});
 
+        List<Object> expectedResults = new ArrayList<>();
         expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
         HashMap<String, Integer> m3 = new HashMap<>();
         m3.put("Eq", 3);
         expectedResults.add(m3);
@@ -78,6 +77,200 @@ public class Test3HiddenTest {
 
         QueryOnClass.clearCounts();
         engine.processCommandsInterLeaved(commands);
+        List<Object> allResults = engine.getAllResults();
+        
+        System.setErr(originalPrintStream);
+        String printedOutput = outputStream.toString();
+
+        // check the correctness of results
+        TestUtil.checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(2), commands.get(5)));
+        
+        // check no NULL pointer exceptions
+        assertTrue(!printedOutput.contains("java.lang.NullPointerException")
+                && !printedOutput.contains("because \"this.module\" is null"));
+        
+        // check number of thread is correct
+        assertTrue(initialNumThread <= maxNumThread[0]);
+    }
+
+
+    @Tag(TestKind.HIDDEN)
+    @RepeatedTest(50)
+    public void testInterleavedImportQueryNumThreadTest2() {
+        // check when another queryOnNode command results
+        initialNumThread = Thread.activeCount();
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "18", "processNodeFreq", new Object[]{}});
+        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"7", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"8", "18", "haveSuperClass", new Object[]{"B", "A"}});
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(outputStream);
+        PrintStream originalPrintStream = System.err;
+        System.setErr(printStream);
+
+        QueryOnClass.clearCounts();
+        engine.processCommandsInterLeaved(commands);
+        List<Object> allResults = engine.getAllResults();
+        
+        System.setErr(originalPrintStream);
+        String printedOutput = outputStream.toString();
+        
+        List<Object> expectedResults = new ArrayList<>();
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        QueryOnNode queryOnNode = new QueryOnNode(engine.getId2ASTModule());
+        expectedResults.add(queryOnNode.processNodeFreq.get());
+        expectedResults.add(true);
+        
+        // check correctness
+        TestUtil.checkResults(expectedResults, allResults, 
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(3), commands.get(7)));
+
+        // check no exception
+        assertTrue(!printedOutput.contains("java.lang.NullPointerException")
+                && !printedOutput.contains("because \"this.module\" is null"));
+        
+        // check num thread
+        assertTrue(initialNumThread <= maxNumThread[0]);
+    }
+
+    
+    @Tag(TestKind.HIDDEN)
+    @RepeatedTest(50)
+    public void testInterleavedImportQueryTwoTest1() {
+        // check when one AST is not loaded
+        initialNumThread = Thread.activeCount();
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"5", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
+        List<Object> expectedResults = new ArrayList<>();
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        expectedResults.add(true);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(outputStream);
+        PrintStream originalPrintStream = System.err;
+        System.setErr(printStream);
+
+        QueryOnClass.clearCounts();
+        engine.processCommandsInterLeavedTwoThread(commands);
+        List<Object> allResults = engine.getAllResults();
+
+        System.setErr(originalPrintStream);
+        String printedOutput = outputStream.toString();
+        
+        // check the correctness of results
+        TestUtil.checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(2), commands.get(5)));
+
+        // check no NULL pointer exceptions
+        assertTrue(!printedOutput.contains("java.lang.NullPointerException")
+                && !printedOutput.contains("because \"this.module\" is null"));
+        
+        // check number of thread is correct
+        assertTrue(initialNumThread + 2 >= maxNumThread[0] && initialNumThread <= maxNumThread[0]);
+    }
+
+    @Tag(TestKind.HIDDEN)
+    @RepeatedTest(50)
+    public void testInterleavedImportQueryTwoTest2() {
+        // check when another queryOnNode command results
+        initialNumThread = Thread.activeCount();
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "18", "processNodeFreq", new Object[]{}});
+        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"7", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"8", "18", "haveSuperClass", new Object[]{"B", "A"}});
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(outputStream);
+        PrintStream originalPrintStream = System.err;
+        System.setErr(printStream);
+
+        QueryOnClass.clearCounts();
+        engine.processCommandsInterLeavedTwoThread(commands);
+        List<Object> allResults = engine.getAllResults();
+
+        System.setErr(originalPrintStream);
+        String printedOutput = outputStream.toString();
+
+        List<Object> expectedResults = new ArrayList<>();
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        QueryOnNode queryOnNode = new QueryOnNode(engine.getId2ASTModule());
+        expectedResults.add(queryOnNode.processNodeFreq.get());
+        expectedResults.add(true);
+
+        // check correctness
+        TestUtil.checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(3), commands.get(7)));
+
+        // check no exception
+        assertTrue(!printedOutput.contains("java.lang.NullPointerException")
+                && !printedOutput.contains("because \"this.module\" is null"));
+
+        // check num thread
+        assertTrue(initialNumThread + 2 >= maxNumThread[0] && initialNumThread <= maxNumThread[0]);
+    }
+    
+    @Tag(TestKind.HIDDEN)
+    @RepeatedTest(50)
+    public void testInterleavedImportQueryNumThreadNoExp() {
+        // the same as public test cases, but check exception & number of threads
+        initialNumThread = Thread.activeCount();
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+
+        List<Object[]> commands = new ArrayList<>();
+        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
+        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
+        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
+        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
+        
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PrintStream printStream = new PrintStream(outputStream);
+        PrintStream originalPrintStream = System.err;
+        System.setErr(printStream);
+
+        QueryOnClass.clearCounts();
+        engine.processCommandsInterLeaved(commands);
+        
         System.setErr(originalPrintStream);
         String printedOutput = outputStream.toString();
 
@@ -85,50 +278,15 @@ public class Test3HiddenTest {
                 && !printedOutput.contains("because \"this.module\" is null"));
         assertTrue(initialNumThread <= maxNumThread[0]);
     }
-
-    @Tag(TestKind.HIDDEN)
-    @RepeatedTest(50)
-    public void testInterleavedImportQueryNumThreadCorrectNum() {
-        initialNumThread = Thread.activeCount();
-        RapidASTManagerEngine engine = new RapidASTManagerEngine();
-
-        List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
-        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
-        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
-        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        HashMap<String, Integer> m3 = new HashMap<>();
-        m3.put("Eq", 3);
-        expectedResults.add(m3);
-        expectedResults.add(true);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(outputStream);
-        PrintStream originalPrintStream = System.err;
-        System.setErr(printStream);
-        QueryOnClass.clearCounts();
-        engine.processCommandsInterLeaved(commands);
-        System.setErr(originalPrintStream);
-        String printedOutput = outputStream.toString();
-
-        assertTrue(initialNumThread <= maxNumThread[0]);
-    }
-
+    
     @Tag(TestKind.HIDDEN)
     @RepeatedTest(50)
     public void testInterleavedImportQueryTwoNoExp() {
+        // the same as public test cases, but check exception & number of threads
         initialNumThread = Thread.activeCount();
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
@@ -136,13 +294,7 @@ public class Test3HiddenTest {
         commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
-        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        HashMap<String, Integer> m3 = new HashMap<>();
-        m3.put("Eq", 3);
-        expectedResults.add(m3);
-        expectedResults.add(true);
+        
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
@@ -155,36 +307,10 @@ public class Test3HiddenTest {
 
         assertTrue(!printedOutput.contains("java.lang.NullPointerException")
                 && !printedOutput.contains("because \"this.module\" is null"));
-        assertTrue(initialNumThread <= maxNumThread[0]);
-    }
-
-    @Tag(TestKind.HIDDEN)
-    @RepeatedTest(50)
-    public void testInterleavedImportQueryTwoCorrectNum() {
-        initialNumThread = Thread.activeCount();
-        RapidASTManagerEngine engine = new RapidASTManagerEngine();
-
-        List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
-        commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
-        commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
-        commands.add(new Object[]{"4", "19", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
-        commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
-        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        HashMap<String, Integer> m3 = new HashMap<>();
-        m3.put("Eq", 3);
-        expectedResults.add(m3);
-        expectedResults.add(true);
-
-        QueryOnClass.clearCounts();
-        engine.processCommandsInterLeavedTwoThread(commands);
+        
         assertTrue(initialNumThread + 2 >= maxNumThread[0] && initialNumThread <= maxNumThread[0]);
     }
+    
 
     @Tag(TestKind.HIDDEN)
     @RepeatedTest(50)
@@ -194,7 +320,6 @@ public class Test3HiddenTest {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
@@ -202,13 +327,7 @@ public class Test3HiddenTest {
         commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
-        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        HashMap<String, Integer> m3 = new HashMap<>();
-        m3.put("Eq", 3);
-        expectedResults.add(m3);
-        expectedResults.add(true);
+        
 
         QueryOnClass.clearCounts();
         long start = System.nanoTime();
@@ -246,7 +365,6 @@ public class Test3HiddenTest {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
-        List<Object> expectedResults = new ArrayList<>();
         commands.add(new Object[]{"1", "18", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"2", "19", "findClassesWithMain", new Object[]{}});
         commands.add(new Object[]{"3", "1", "calculateOp2Nums", new Object[]{}});
@@ -254,13 +372,6 @@ public class Test3HiddenTest {
         commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-
-        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
-        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
-        HashMap<String, Integer> m3 = new HashMap<>();
-        m3.put("Eq", 3);
-        expectedResults.add(m3);
-        expectedResults.add(true);
 
         QueryOnClass.clearCounts();        
         long start = System.nanoTime();
