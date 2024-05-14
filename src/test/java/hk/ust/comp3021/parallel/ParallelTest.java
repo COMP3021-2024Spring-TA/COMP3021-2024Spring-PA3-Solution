@@ -3,8 +3,6 @@ package hk.ust.comp3021.parallel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.*;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -32,7 +30,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelLoadingPool() {
+    public void testParallelLoadingPoolTask1() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "20", "100"), 4);
         assertEquals(3, engine.getId2ASTModule().size());
@@ -41,7 +39,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelLoadingDivide() {
+    public void testParallelLoadingDivideTask1() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingDivide("resources/pythonxml/", List.of("18", "19", "20", "100"), 4);
         assertEquals(3, engine.getId2ASTModule().size());
@@ -49,7 +47,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testSerialExecution() {
+    public void testSerialExecutionTask2() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "20"), 4);
 
@@ -74,7 +72,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelExecution() {
+    public void testParallelExecutionTask2() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19", "1"), 4);
 
@@ -100,7 +98,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testParallelExecutionWithOrder() {
+    public void testParallelExecutionWithOrderTask2() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
         engine.processXMLParsingPool("resources/pythonxml/", List.of("18", "19"), 4);
 
@@ -127,7 +125,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testInterleavedImportQuery() {
+    public void testInterleavedImportQueryTask3() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
@@ -156,7 +154,7 @@ public class ParallelTest {
 
     @Tag(TestKind.PUBLIC)
     @Test
-    public void testInterleavedImportQueryTwo() {
+    public void testInterleavedImportQueryTwoTask3() {
         RapidASTManagerEngine engine = new RapidASTManagerEngine();
 
         List<Object[]> commands = new ArrayList<>();
