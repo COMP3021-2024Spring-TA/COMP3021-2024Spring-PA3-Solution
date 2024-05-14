@@ -261,8 +261,14 @@ public class Test3HiddenTest {
         commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
+        List<Object> expectedResults = new ArrayList<>();
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        expectedResults.add(true);
         
-
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
         PrintStream originalPrintStream = System.err;
@@ -273,6 +279,10 @@ public class Test3HiddenTest {
         
         System.setErr(originalPrintStream);
         String printedOutput = outputStream.toString();
+
+        List<Object> allResults = engine.getAllResults();
+        TestUtil.checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(6)));
 
         assertTrue(!printedOutput.contains("java.lang.NullPointerException")
                 && !printedOutput.contains("because \"this.module\" is null"));
@@ -294,7 +304,14 @@ public class Test3HiddenTest {
         commands.add(new Object[]{"5", "18", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"6", "1", "processXMLParsing", new Object[]{"resources/pythonxml/"}});
         commands.add(new Object[]{"7", "18", "haveSuperClass", new Object[]{"B", "A"}});
-        
+
+        List<Object> expectedResults = new ArrayList<>();
+        expectedResults.add(Set.of("B", "C", "D", "E", "F", "G", "H"));
+        expectedResults.add(Set.of("C", "D", "F", "G", "H"));
+        HashMap<String, Integer> m3 = new HashMap<>();
+        m3.put("Eq", 3);
+        expectedResults.add(m3);
+        expectedResults.add(true);
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(outputStream);
@@ -304,6 +321,10 @@ public class Test3HiddenTest {
         engine.processCommandsInterLeavedTwoThread(commands);
         System.setErr(originalPrintStream);
         String printedOutput = outputStream.toString();
+
+        List<Object> allResults = engine.getAllResults();
+        TestUtil.checkResults(expectedResults, allResults,
+                Arrays.asList(commands.get(0), commands.get(1), commands.get(2), commands.get(6)));
 
         assertTrue(!printedOutput.contains("java.lang.NullPointerException")
                 && !printedOutput.contains("because \"this.module\" is null"));
