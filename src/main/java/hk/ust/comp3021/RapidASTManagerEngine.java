@@ -4,6 +4,8 @@ import hk.ust.comp3021.parallel.*;
 import hk.ust.comp3021.utils.*;
 import java.util.concurrent.*;
 import java.util.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 
@@ -42,7 +44,52 @@ public class RapidASTManagerEngine {
                 break;
             }
         }
+    }
 
+    /* For Interview */
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition nextCondition = lock.newCondition();
+    private final HashMap<String, Boolean> id2Loaded = new HashMap<>();
+    
+    public void processXMLParsingPoolSchedule(String xmlDirPath, List<String> xmlIDs, int numThread) {
+        for (String xmlID: xmlIDs) {
+            id2Loaded.put(xmlID, false);
+        }
+        ExecutorService executor = Executors.newFixedThreadPool(numThread);
+        for (String xmlID : xmlIDs) {
+            ParserWorker worker = new ParserWorker(xmlID, xmlDirPath, id2ASTModules);
+            executor.execute(() -> {
+                lock.lock();
+                try {
+                    boolean canLoad;
+                    do {
+                        synchronized(id2Loaded) {
+                            canLoad = id2Loaded.keySet().stream()
+                                    .noneMatch(curID -> Integer.parseInt(curID) < Integer.parseInt(xmlID)
+                                            && !id2Loaded.get(curID));
+                        }
+                        if (!canLoad) {
+                            nextCondition.await();
+                        }
+                    } while (!canLoad);
+                    worker.run();
+                    synchronized (id2Loaded) {
+                        id2Loaded.put(xmlID, true);
+                    }
+                    nextCondition.signalAll();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    lock.unlock();
+                }
+            });
+        }
+        executor.shutdown();
+        while (true) {
+            if (executor.isTerminated()) {
+                break;
+            }
+        }
     }
     
     /**

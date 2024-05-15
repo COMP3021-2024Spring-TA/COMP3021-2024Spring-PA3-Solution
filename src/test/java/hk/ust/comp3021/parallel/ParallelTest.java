@@ -36,6 +36,13 @@ public class ParallelTest {
         assertEquals(3, engine.getId2ASTModule().size());
     }
 
+    @Tag(TestKind.PUBLIC)
+    @Test
+    public void testParallelLoadingPoolInterviewTask1() {
+        RapidASTManagerEngine engine = new RapidASTManagerEngine();
+        engine.processXMLParsingPoolSchedule("resources/pythonxml/", List.of("21", "20", "18", "19", "100"), 4);
+        assertEquals(4, engine.getId2ASTModule().size());
+    }
 
     @Tag(TestKind.PUBLIC)
     @Test
